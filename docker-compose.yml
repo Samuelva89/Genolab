@@ -1,0 +1,50 @@
+services:
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - funjilap_network
+
+  api:
+    build:
+      context: ./services
+      dockerfile: Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./services:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SQLALCHEMY_DATABASE_URL=sqlite:///./funjilapv1.db
+    networks:
+      - funjilap_network
+
+  worker:
+    build:
+      context: ./services
+      dockerfile: Dockerfile
+    command: celery -A app.celery_worker worker --loglevel=info
+    volumes:
+      - ./services:/app
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SQLALCHEMY_DATABASE_URL=sqlite:///./funjilapv1.db
+    networks:
+      - funjilap_network
+
+volumes:
+  redis_data:
+
+networks:
+  funjilap_network:
+    driver: bridge

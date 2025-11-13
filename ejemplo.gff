@@ -1,0 +1,7 @@
+##gff-version 3
+seq1	source1	gene	1	1000	.	+	.	ID=gene1
+seq1	source1	mRNA	1	1000	.	+	.	ID=mrna1;Parent=gene1
+seq1	source1	exon	1	200	.	+	.	Parent=mrna1
+seq1	source1	exon	500	800	.	+	.	Parent=mrna1
+seq1	source1	CDS	1	200	.	+	0	ID=cds1;Parent=mrna1
+seq1	source1	CDS	500	800	.	+	0	ID=cds1;Parent=mrna1
