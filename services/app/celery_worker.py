@@ -3,8 +3,8 @@ from .core.config import settings
 
 celery_app = Celery(
     'fungilap',
-    broker_url=settings.CELERY_BROKER_URL,
-    result_backend=settings.CELERY_RESULT_BACKEND
+    broker=settings.REDIS_URL,
+    backend=settings.REDIS_URL
 )
 
 celery_app.conf.update(task_track_started=True)

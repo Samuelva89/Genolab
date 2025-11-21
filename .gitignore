@@ -133,3 +133,5 @@ test_v1.db
 
 # Ruff cache
 .ruff_cache/
+
+.env

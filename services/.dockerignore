@@ -1,9 +1,24 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
 # Environment
 .env
-.env.example
+.env.*
+!.env.example
+
+# Virtualenv
+.venv
+venv/
+env/
 
 # Databases
 *.db
+*.sqlite3
 
 # Python cache
 __pycache__/
@@ -11,14 +26,23 @@ __pycache__/
 *.pyo
 *.pyd
 
+# Ruff cache
+.ruff_cache/
+
 # Test artifacts
 .pytest_cache/
 .coverage
 htmlcov/
+tests/
+pytest.ini
 
-# IDE settings
+# IDE / Editor settings
 .vscode/
+.idea/
 
-# Alembic
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Alembic - THIS LINE IS INTENTIONALLY LEFT BLANK TO ALLOW ALEMBIC
 alembic.ini
-alembic/

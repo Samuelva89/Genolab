@@ -13,7 +13,7 @@ def get_user(db: Session, user_id: int):
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     """
     Devuelve una lista de usuarios de la base de datos.
-    
+
     Args:
         db (Session): La sesión de la base de datos.
         skip (int): El número de registros a saltar (para paginación).
@@ -24,11 +24,11 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 def get_user_by_email(db: Session, email: str):
     """
     Busca y devuelve un usuario por su dirección de email.
-    
+
     Args:
         db (Session): La sesión de la base de datos inyectada por FastAPI.
         email (str): El email del usuario a buscar.
-        
+
     Returns:
         models.User | None: El objeto usuario si se encuentra, o None si no existe.
     """
@@ -38,15 +38,16 @@ def get_user_by_email(db: Session, email: str):
 def create_user(db: Session, user: schemas.UserCreate):
     """
     Crea un nuevo usuario en la base de datos.
-    
+
     Args:
         db (Session): La sesión de la base de datos.
         user (schemas.UserCreate): Los datos del nuevo usuario (email, name).
-        
+
     Returns:
         models.User: El objeto usuario que se acaba de crear.
     """
-    db_user = models.User(email=user.email, name=user.name, is_active=True, is_admin=user.is_admin)
+    db_user = models.User(email=user.email, name=user.name, is_active=True)
+    # db_user = models.User(email=user.email, name=user.name, is_active=True, is_admin=user.is_admin)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -150,7 +151,7 @@ def delete_organism(db: Session, organism_id: int):
 # --- CRUD para Cepas (Strains) ---
 
 def get_strains(db: Session, skip: int = 0, limit: int = 100):
-    """Devuelve una lista de todas las cepas.""" 
+    """Devuelve una lista de todas las cepas."""
     return db.query(models.Strain).offset(skip).limit(limit).all()
 
 def get_strains_by_organism(db: Session, organism_id: int, skip: int = 0, limit: int = 100):
@@ -160,11 +161,11 @@ def get_strains_by_organism(db: Session, organism_id: int, skip: int = 0, limit:
 def get_strain(db: Session, strain_id: int):
     """
     Busca y devuelve una cepa específica por su ID.
-    
+
     Args:
         db (Session): La sesión de la base de datos.
         strain_id (int): El ID de la cepa a buscar.
-        
+
     Returns:
         models.Strain | None: El objeto Strain si se encuentra, o None si no existe.
     """
@@ -186,10 +187,16 @@ def get_analyses(db: Session, skip: int = 0, limit: int = 100):
     """Devuelve una lista de todos los análisis."""
     return db.query(models.Analysis).offset(skip).limit(limit).all()
 
+def get_analysis(db: Session, analysis_id: int):
+    """
+    Busca y devuelve un análisis específico por su ID.
+    """
+    return db.query(models.Analysis).filter(models.Analysis.id == analysis_id).first()
+
 def create_analysis(db: Session, analysis: schemas.AnalysisCreate, owner_id: int):
     """
     Crea un nuevo registro de análisis en la base de datos.
-    
+
     Args:
         db (Session): La sesión de la base de datos.
         analysis (schemas.AnalysisCreate): Los datos del análisis (tipo, resultados, strain_id).

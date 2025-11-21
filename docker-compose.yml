@@ -1,50 +1,98 @@
 services:
+  minio:
+    image: quay.io/minio/minio:RELEASE.2023-09-07T02-05-02Z
+    ports:
+      - "9000:9000" # API
+      - "9001:9001" # Consola Web
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+
+
+
   redis:
-    image: "redis:alpine"
+    image: redis:7-alpine
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    networks:
-      - funjilap_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  api:
+  app:
     build:
       context: ./services
       dockerfile: Dockerfile
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    volumes:
-      - ./services:/app
     ports:
       - "8000:8000"
-    depends_on:
-      - redis
+    env_file:
+      - .env
     environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - SQLALCHEMY_DATABASE_URL=sqlite:///./funjilapv1.db
-    networks:
-      - funjilap_network
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin123
+      - MINIO_BUCKET_NAME=fungilap-bucket
+      - REDIS_URL=redis://redis:6379/0
+      - SQLALCHEMY_DATABASE_URL=sqlite:///./fungilap.db
+    volumes:
+      - ./services:/app
+      - sqlite_data:/app/data
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    command: sh ./start_app.sh
 
-  worker:
+  celery_worker:
     build:
       context: ./services
       dockerfile: Dockerfile
-    command: celery -A app.celery_worker worker --loglevel=info
+    env_file:
+      - .env
+    environment:
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin123
+      - MINIO_BUCKET_NAME=fungilap-bucket
+      - REDIS_URL=redis://redis:6379/0
+      - SQLALCHEMY_DATABASE_URL=sqlite:///./fungilap.db
     volumes:
       - ./services:/app
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    command: celery -A app.celery_worker.celery_app worker --loglevel=info
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Frontend runs on 8080 in container, exposed on 8080 on host
     environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - SQLALCHEMY_DATABASE_URL=sqlite:///./funjilapv1.db
-    networks:
-      - funjilap_network
+      # Pass the backend API URL to the frontend
+      # 'app' is the service name of the backend in docker-compose network
+      VITE_API_URL: http://app:8000
+    depends_on:
+      app:
+        condition: service_started # Frontend needs backend to be started to make API calls
 
 volumes:
+  minio_data:
   redis_data:
-
-networks:
-  funjilap_network:
-    driver: bridge
+  sqlite_data:

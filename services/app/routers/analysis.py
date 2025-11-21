@@ -1,14 +1,28 @@
 # Importaciones de librerías estándar y de terceros
-from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile, Form
+import uuid
+import boto3
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile, Form, Response
 from sqlalchemy.orm import Session
 
-from .. import crud, models
+from .. import crud, models, schemas
 from ..dependencies import get_db
-from ..core.validators import validate_file_upload, validate_file_extension_for_analysis_type
+from ..core.config import settings
+from ..core.validators import validate_file_extension_for_analysis_type
 from ..tasks import process_fasta_count, process_fasta_gc_content, process_fastq_stats, process_genbank_stats, process_gff_stats # Importamos las tareas de Celery
 from ..celery_worker import celery_app # Importamos la instancia de Celery para consultar el estado
 from typing import List # Importar List para el tipo de retorno
-from .. import schemas # Importar schemas para el tipo de retorno
+
+# --- Configuración del Cliente MinIO/S3 ---
+def get_s3_client():
+    return boto3.client(
+        's3',
+        endpoint_url=settings.MINIO_ENDPOINT,
+        aws_access_key_id=settings.MINIO_ACCESS_KEY,
+        aws_secret_access_key=settings.MINIO_SECRET_KEY,
+        region_name='us-east-1'  # Puede ser cualquier región, MinIO no la usa
+    )
+
+S3_BUCKET_NAME = settings.MINIO_BUCKET_NAME
 
 router = APIRouter(
     prefix="/analysis",
@@ -41,27 +55,38 @@ async def upload_and_count_fasta(
 ):
     """
     Endpoint para subir un archivo FASTA y contar el número de secuencias.
-    La tarea de análisis se despacha a Celery.
-
-    - **strain_id**: El ID de la cepa a la que se asocia este análisis.
-    - **file**: El archivo en formato FASTA (extensiones permitidas: .fasta, .fa, .fna, etc.)
-    - **Tamaño máximo:** 10MB
+    El archivo se sube a MinIO y la tarea de análisis se despacha a Celery.
     """
-    # Validar existencia de cepa
+    # 1. Validar existencia de la cepa
     if not crud.get_strain(db, strain_id=strain_id):
         raise HTTPException(status_code=404, detail="La cepa especificada no existe.")
 
-    # Validar archivo (tamaño y extensión)
+    # 2. Validar el archivo (puedes añadir validaciones de tamaño aquí)
     validate_file_extension_for_analysis_type(file.filename, 'fasta')
-    contents = await validate_file_upload(file)
 
-    # Obtener el ID del primer usuario para asociar el análisis
+    # 3. Generar un nombre de objeto único para MinIO
+    object_key = f"uploads/{uuid.uuid4()}-{file.filename}"
+
+    # 4. Subir el archivo a MinIO
+    try:
+        s3_client = get_s3_client()
+        s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+
+    # 5. Obtener el ID del usuario (en un sistema real, esto vendría de un token de autenticación)
     first_user = db.query(models.User).first()
     if not first_user:
         raise HTTPException(status_code=500, detail="No hay usuarios en la base de datos para asociar el análisis.")
 
-    # Despachar la tarea a Celery
-    task = process_fasta_count.delay(strain_id, contents, file.filename, first_user.id)
+    # 6. Despachar la tarea a Celery con la referencia al archivo en MinIO
+    task = process_fasta_count.delay(
+        strain_id=strain_id,
+        owner_id=first_user.id,
+        bucket=S3_BUCKET_NAME,
+        object_key=object_key,
+        analysis_type_str="fasta_count"
+    )
 
     return {"message": "Análisis de conteo FASTA iniciado", "task_id": task.id}
 
@@ -110,22 +135,33 @@ async def upload_and_analyze_fasta_gc_content(
     """
     Endpoint para subir un archivo FASTA y calcular el contenido GC.
     La tarea de análisis se despacha a Celery.
-    
+
     - **strain_id**: El ID de la cepa a la que se asocia este análisis.
     - **file**: El archivo en formato FASTA.
     """
     if not crud.get_strain(db, strain_id=strain_id):
         raise HTTPException(status_code=404, detail="La cepa especificada no existe.")
 
-    contents = await file.read()
-    
-    # Obtener el ID del primer usuario para asociar el análisis
+    validate_file_extension_for_analysis_type(file.filename, 'fasta')
+    object_key = f"uploads/{uuid.uuid4()}-{file.filename}"
+
+    try:
+        s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+
     first_user = db.query(models.User).first()
     if not first_user:
         raise HTTPException(status_code=500, detail="No hay usuarios en la base de datos para asociar el análisis.")
 
-    task = process_fasta_gc_content.delay(strain_id, contents, file.filename, first_user.id)
-    
+    task = process_fasta_gc_content.delay(
+        strain_id=strain_id,
+        owner_id=first_user.id,
+        bucket=S3_BUCKET_NAME,
+        object_key=object_key,
+        analysis_type_str="fasta_gc_content"
+    )
+
     return {"message": "Análisis de contenido GC FASTA iniciado", "task_id": task.id}
 
 @router.post("/upload/fastq_stats", status_code=status.HTTP_202_ACCEPTED)
@@ -145,14 +181,25 @@ async def upload_and_analyze_fastq(
     if not crud.get_strain(db, strain_id=strain_id):
         raise HTTPException(status_code=404, detail="La cepa especificada no existe.")
 
-    contents = await file.read()
+    validate_file_extension_for_analysis_type(file.filename, 'fastq')
+    object_key = f"uploads/{uuid.uuid4()}-{file.filename}"
 
-    # Obtener el ID del primer usuario para asociar el análisis
+    try:
+        s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+
     first_user = db.query(models.User).first()
     if not first_user:
         raise HTTPException(status_code=500, detail="No hay usuarios en la base de datos para asociar el análisis.")
 
-    task = process_fastq_stats.delay(strain_id, contents, file.filename, first_user.id)
+    task = process_fastq_stats.delay(
+        strain_id=strain_id,
+        owner_id=first_user.id,
+        bucket=S3_BUCKET_NAME,
+        object_key=object_key,
+        analysis_type_str="fastq_stats"
+    )
 
     return {"message": "Análisis de estadísticas FASTQ iniciado", "task_id": task.id}
 
@@ -173,14 +220,25 @@ async def upload_and_analyze_genbank(
     if not crud.get_strain(db, strain_id=strain_id):
         raise HTTPException(status_code=404, detail="La cepa especificada no existe.")
 
-    contents = await file.read()
+    validate_file_extension_for_analysis_type(file.filename, 'genbank')
+    object_key = f"uploads/{uuid.uuid4()}-{file.filename}"
 
-    # Obtener el ID del primer usuario para asociar el análisis
+    try:
+        s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+
     first_user = db.query(models.User).first()
     if not first_user:
         raise HTTPException(status_code=500, detail="No hay usuarios en la base de datos para asociar el análisis.")
 
-    task = process_genbank_stats.delay(strain_id, contents, file.filename, first_user.id)
+    task = process_genbank_stats.delay(
+        strain_id=strain_id,
+        owner_id=first_user.id,
+        bucket=S3_BUCKET_NAME,
+        object_key=object_key,
+        analysis_type_str="genbank_stats"
+    )
 
     return {"message": "Análisis de estadísticas GenBank iniciado", "task_id": task.id}
 
@@ -201,13 +259,76 @@ async def upload_and_analyze_gff(
     if not crud.get_strain(db, strain_id=strain_id):
         raise HTTPException(status_code=404, detail="La cepa especificada no existe.")
 
-    contents = await file.read()
+    validate_file_extension_for_analysis_type(file.filename, 'gff')
+    object_key = f"uploads/{uuid.uuid4()}-{file.filename}"
 
-    # Obtener el ID del primer usuario para asociar el análisis
+    try:
+        s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+
     first_user = db.query(models.User).first()
     if not first_user:
         raise HTTPException(status_code=500, detail="No hay usuarios en la base de datos para asociar el análisis.")
 
-    task = process_gff_stats.delay(strain_id, contents, file.filename, first_user.id)
+    task = process_gff_stats.delay(
+        strain_id=strain_id,
+        owner_id=first_user.id,
+        bucket=S3_BUCKET_NAME,
+        object_key=object_key,
+        analysis_type_str="gff_stats"
+    )
 
     return {"message": "Análisis de estadísticas GFF iniciado", "task_id": task.id}
+
+
+def _format_results_to_text(analysis: models.Analysis) -> str:
+    """
+    Helper function to format analysis results from JSON into a human-readable string.
+    """
+    if not analysis.results or not isinstance(analysis.results, dict):
+        return "No hay resultados disponibles para este análisis."
+
+    # Start building the text content
+    lines = []
+    lines.append("=======================================")
+    lines.append("      Resultados del Análisis")
+    lines.append("=======================================")
+    lines.append(f"ID de Análisis: {analysis.id}")
+    lines.append(f"Tipo de Análisis: {analysis.analysis_type}")
+    lines.append(f"Fecha: {analysis.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append("---------------------------------------")
+    lines.append("Resultados:")
+
+    for key, value in analysis.results.items():
+        lines.append(f"  - {key}: {value}")
+
+    lines.append("=======================================")
+
+    return "\n".join(lines)
+
+
+@router.get("/{analysis_id}/results/download-txt")
+def download_analysis_results_as_txt(
+    analysis_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Downloads the results of a specific analysis as a .txt file.
+    """
+    # Fetch the analysis from the database
+    analysis = crud.get_analysis(db, analysis_id=analysis_id)
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Análisis no encontrado.")
+
+    # Format the results into a text string
+    text_content = _format_results_to_text(analysis)
+
+    # Define headers for file download
+    headers = {
+        'Content-Disposition': f'attachment; filename="analysis_results_{analysis_id}.txt"'
+    }
+
+    # Return a Response object with the text content and headers
+    # Need to import Response from fastapi
+    return Response(content=text_content, media_type="text/plain", headers=headers)

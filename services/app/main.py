@@ -4,18 +4,14 @@ from fastapi import FastAPI, APIRouter
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from .database import engine # Importamos el motor de la BD y la Base de los modelos
-from . import models  # Importamos los modelos para que SQLAlchemy los conozca
 from .celery_worker import celery_app # Importamos la instancia de Celery
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.middleware import SlowAPIMiddleware
 from .routers import users, auth, organisms, analysis
-
-# --- Creación de las tablas en la Base de Datos ---
-# Esta línea es CRÍTICA. Le dice a SQLAlchemy que cree todas las tablas
-# que hemos definido en nuestros modelos (User, Organism, Strain)
-# usando el motor (engine) que configuramos.
-# Esto solo se ejecuta una vez al iniciar la aplicación.
-models.Base.metadata.create_all(bind=engine)
+from contextlib import asynccontextmanager
+import boto3
+from botocore.exceptions import ClientError
+from .core.config import settings
 
 # --- Configuración de Rate Limiting ---
 # Limita las peticiones por IP para prevenir abusos y ataques de fuerza bruta
@@ -28,6 +24,45 @@ else:
     # En modo testing, sin límites
     limiter = Limiter(key_func=get_remote_address, enabled=False)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # On startup, connect to MinIO and ensure the bucket exists.
+    print("Attempting to connect to MinIO and verify bucket...")
+    try:
+        s3_client = boto3.client(
+            's3',
+            endpoint_url=settings.MINIO_ENDPOINT,
+            aws_access_key_id=settings.MINIO_ACCESS_KEY,
+            aws_secret_access_key=settings.MINIO_SECRET_KEY,
+        )
+
+        bucket_name = settings.MINIO_BUCKET_NAME
+
+        s3_client.head_bucket(Bucket=bucket_name)
+        print(f"MinIO bucket '{bucket_name}' already exists.")
+
+    except ClientError as e:
+        error_code = e.response.get("Error", {}).get("Code")
+        if error_code == '404' or error_code == 'NoSuchBucket':
+            print(f"MinIO bucket '{bucket_name}' not found. Attempting to create it...")
+            try:
+                s3_client.create_bucket(Bucket=bucket_name)
+                print(f"MinIO bucket '{bucket_name}' created successfully.")
+            except ClientError as create_error:
+                print(f"CRITICAL: Failed to create MinIO bucket '{bucket_name}'. Error: {create_error}")
+                # Still yield to let the app start, but the upload functionality will fail.
+        else:
+            # For other client errors (e.g., connection refused, invalid credentials)
+            print(f"WARNING: Could not connect to MinIO or verify bucket. File uploads will fail. Error: {e}")
+
+    except Exception as e:
+        # Catch any other potential exceptions during S3 client initialization
+        print(f"WARNING: An unexpected error occurred during MinIO initialization. File uploads will fail. Error: {e}")
+
+    yield
+    # Code below yield runs on shutdown
+    print("Shutting down.")
+
 # --- Instancia de la Aplicación FastAPI ---
 # Aquí creamos la aplicación principal.
 # La metadata que se añade aquí (title, version, description)
@@ -36,6 +71,7 @@ app = FastAPI(
   title="FunjiLapV1 API",
   version="0.3.0", # Subí la versión por la nueva funcionalidad de admin
   description="Una API para gestionar un cepario de organismos (FunjiLapV1) y realizar análisis bioinformáticos.",
+  lifespan=lifespan
 )
 
 # Configuración de CORS
@@ -53,6 +89,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(SlowAPIMiddleware)
 
 # Agregar el limiter al estado de la aplicación
 app.state.limiter = limiter
@@ -72,7 +110,7 @@ celery_app.autodiscover_tasks(['app'])
 api_router = APIRouter(prefix="/api")
 
 api_router.include_router(users.router)
-api_router.include_router(auth.router)
+# api_router.include_router(auth.router)  # Deshabilitado temporalmente
 api_router.include_router(organisms.router)
 api_router.include_router(analysis.router)
 

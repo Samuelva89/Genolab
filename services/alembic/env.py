@@ -1,4 +1,6 @@
 from logging.config import fileConfig
+import os # Added for os.getenv and os.path.exists
+
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -6,6 +8,8 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.models import Base
+
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -17,6 +21,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
+
+def get_database_url():
+    # Prioritize DATABASE_URL for compatibility, but use SQLALCHEMY_DATABASE_URL as fallback
+    return os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URL")
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -36,7 +44,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_database_url() # Get from environment
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -59,6 +67,7 @@ def run_migrations_online() -> None:
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        url=get_database_url(), # Pass url directly
     )
 
     with connectable.connect() as connection:

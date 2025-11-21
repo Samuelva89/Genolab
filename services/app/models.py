@@ -18,7 +18,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     name = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
-    is_admin = Column(Boolean, default=False)
+    # is_admin = Column(Boolean, default=False)  # Comentado temporalmente - no se requiere autenticación
 
     # --- Relación con Analysis ---
     # Un usuario puede tener muchos análisis.
@@ -58,17 +58,20 @@ class Analysis(Base):
     __tablename__ = "analyses"
 
     id = Column(Integer, primary_key=True, index=True)
-    
+
     # Tipo de análisis realizado (ej: "fasta_count").
     analysis_type = Column(String, index=True, nullable=False)
-    
+
     # Campo JSON para guardar un diccionario flexible de resultados.
     # Esta es la clave para que el modelo sea extensible a futuro.
     results = Column(JSON, nullable=False)
-    
+
+    # Columna para guardar la URL del archivo en el almacenamiento de objetos (MinIO)
+    file_url = Column(String(1024), nullable=True)
+
     # Fecha y hora en que se creó el registro. Se autogenera por la BD.
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
-    
+
     # --- Llaves Foráneas ---
     # Conecta el análisis con la cepa correspondiente.
     strain_id = Column(Integer, ForeignKey("strains.id"), nullable=False)

@@ -33,10 +33,12 @@ class StrainCreate(StrainBase):
     organism_id: int
 
 class UserCreate(UserBase):
-    is_admin: bool = False
+    # is_admin: bool = False  # Comentado temporalmente - no se requiere autenticación
+    pass
 
 class AnalysisCreate(AnalysisBase):
     strain_id: int
+    file_url: str
 
 # --- ESQUEMAS PARA LA ACTUALIZACIÓN DE DATOS (INPUT) ---
 
@@ -48,7 +50,8 @@ class OrganismUpdate(BaseModel):
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     name: Optional[str] = None
-    
+    is_active: Optional[bool] = None
+
 
 # --- ESQUEMAS COMPLETOS PARA RESPUESTAS DE LA API (OUTPUT) ---
 # Estos esquemas definen cómo se verán los datos cuando la API los devuelva.
@@ -86,6 +89,8 @@ class Organism(OrganismBase):
 class User(UserBase):
     id: int
     name: Optional[str] = None
+    is_active: bool
+    # is_admin: bool  # Comentado temporalmente - no se requiere autenticación
     analyses: List[Analysis] = []
     model_config = {"from_attributes": True}
 

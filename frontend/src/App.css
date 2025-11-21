@@ -1,0 +1,208 @@
+/* Estilos Globales */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff;
+}
+
+.App {
+  display: flex;
+  position: relative; /* Necesario para posicionar el botón de menú */
+}
+
+.menu-button {
+  display: none; /* Oculto por defecto en pantallas grandes */
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1100; /* Asegura que esté por encima del sidebar */
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.menu-button:hover {
+  background-color: #e9ecef;
+}
+
+/* Contenido Principal */
+.main-content {
+  margin-left: 250px; /* Mismo ancho que el sidebar */
+  padding: 2rem;
+  width: calc(100% - 250px); /* Ocupa el resto del ancho */
+  text-align: left;
+  transition: margin-left 0.3s ease; /* Transición suave */
+}
+
+/* --- Media Queries para Responsividad --- */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0; /* Contenido ocupa todo el ancho */
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .menu-button {
+    display: block; /* Mostrar el botón en pantallas pequeñas */
+  }
+}
+
+
+/* Página de Bienvenida */
+.welcome-page {
+  text-align: center;
+  padding-top: 50px;
+}
+
+.welcome-page h1 {
+  font-size: 2.5rem;
+  color: #343a40;
+}
+
+.welcome-page p {
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+/* Estilos de Botones Globales */
+button, .button {
+  display: inline-block;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: center;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+button.button-primary, .button-primary {
+  background-color: #14b62a; /* Color SENA */
+  color: white;
+}
+
+button.button-primary:hover, .button-primary:hover {
+  background-color: #119c24; /* Un poco más oscuro para el hover */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+button.button-secondary, .button-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+button.button-secondary:hover, .button-secondary:hover {
+  background-color: #5a6268;
+}
+
+button:disabled, .button:disabled {
+  background-color: #ced4da;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+button.button-danger, .button-danger {
+  background-color: #dc3545; /* Rojo */
+  color: white;
+}
+
+button.button-danger:hover, .button-danger:hover {
+  background-color: #c82333; /* Rojo más oscuro */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Estilos de Formularios */
+form {
+  max-width: 600px;
+  margin: 2rem 0; /* Ajustado para que no se centre en la página */
+  padding: 2rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+form .form-group {
+  margin-bottom: 1rem;
+}
+
+form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+form input[type="text"],
+form input[type="number"],
+form select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box; /* Para que el padding no afecte el ancho total */
+}
+
+form input:focus {
+  border-color: #14b62a;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(20, 182, 42, 0.25);
+}
+
+.form-actions {
+  margin-top: 1.5rem;
+}
+
+/* Estilos para Listas de Datos (Tablas) */
+.data-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 2rem;
+}
+
+.data-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.data-list-item a {
+  text-decoration: none;
+  color: #212529;
+  font-weight: 500;
+}
+
+.data-list-item a:hover {
+  color: #14b62a;
+}
+
+.data-list-item-actions {
+  display: flex;
+  align-items: center;
+}
+
+/* En pantallas pequeñas, apilar los botones verticalmente si es necesario */
+@media (max-width: 480px) {
+  .data-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .data-list-item-actions {
+    margin-top: 0.75rem;
+  }
+}

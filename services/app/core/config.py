@@ -1,42 +1,30 @@
-import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
 
 class Settings(BaseSettings):
-    # SECURITY WARNING: Generate a strong SECRET_KEY and set it in .env file
-    # Generate with: python -c "import secrets; print(secrets.token_urlsafe(32))"
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "INSECURE-DEV-KEY-CHANGE-IN-PRODUCTION")
+    """
+    Centralized application settings.
+    Pydantic-settings reads configuration from environment variables.
+    """
+    # Database configuration
+    SQLALCHEMY_DATABASE_URL: str
+
+    # MinIO configuration
+    MINIO_ENDPOINT: str
+    MINIO_ACCESS_KEY: str
+    MINIO_SECRET_KEY: str
+    MINIO_BUCKET_NAME: str
+
+    # Redis configuration for Celery
+    REDIS_URL: str
+
+    # JWT Authentication
+    SECRET_KEY: str = "a_very_secret_key_that_should_be_changed"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # Database
-    SQLALCHEMY_DATABASE_URL: str = "sqlite:///./funjilapv1.db"
+    # model_config allows pydantic to load variables from a .env file for local development
+    # In production (Docker), these will be passed directly as environment variables.
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    # Redis / Celery
-    REDIS_PASSWORD: Optional[str] = None
-    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
-    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
-
-    # Application
-    APP_NAME: str = "FunjiLapV1 API"
-    APP_VERSION: str = "0.3.0"
-    DEBUG: bool = True
-
-    # File Upload
-    MAX_UPLOAD_SIZE_MB: int = 10
-    ALLOWED_EXTENSIONS: str = "fasta,fastq,gb,gff,fa,fq"
-
-    # Rate Limiting
-    RATE_LIMIT_PER_MINUTE: int = 60
-
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8')
-
+# Create a single, importable instance of the settings
 settings = Settings()
-
-# Validation: Warn if using default SECRET_KEY
-if settings.SECRET_KEY == "INSECURE-DEV-KEY-CHANGE-IN-PRODUCTION":
-    import warnings
-    warnings.warn(
-        "WARNING: Using default SECRET_KEY! Set SECRET_KEY in .env file for production.",
-        UserWarning
-    )

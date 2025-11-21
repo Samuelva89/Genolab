@@ -1,0 +1,140 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+interface Organism {
+  id?: number; // Opcional para la creación
+  name: string;
+  genus: string;
+  species: string;
+}
+
+const OrganismFormPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const isEditing = id !== undefined;
+  const organismId = parseInt(id || '0');
+
+  const [formData, setFormData] = useState<Organism>({
+    name: '',
+    genus: '',
+    species: '',
+  });
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isEditing) {
+      const fetchOrganism = async () => {
+        try {
+          const response = await axios.get<Organism>(`${API_BASE_URL}/api/ceparium/organisms/${organismId}`);
+          setFormData(response.data);
+        } catch (err) {
+          setError('Error al cargar el organismo para editar.');
+          console.error('Error fetching organism for edit:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchOrganism();
+    } else {
+      setLoading(false);
+    }
+  }, [isEditing, organismId]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setIsSubmitting(true);
+    try {
+      if (isEditing) {
+        await axios.put(`${API_BASE_URL}/api/ceparium/organisms/${organismId}`, formData);
+        setSuccess('Organismo actualizado exitosamente.');
+      } else {
+        await axios.post(`${API_BASE_URL}/api/ceparium/organisms/`, formData);
+        setSuccess('Organismo creado exitosamente.');
+      }
+      // Esperar un poco para que el usuario vea el mensaje antes de redirigir
+      setTimeout(() => {
+        navigate('/ceparium/organisms');
+      }, 1500);
+    } catch (err) {
+      setError('Error al guardar el organismo.');
+      console.error('Error saving organism:', err);
+      setIsSubmitting(false); // Reactivar el botón si hay un error
+    }
+    // No reactivar isSubmitting aquí si hay éxito, para evitar doble click antes de redirigir
+  };
+
+  if (loading) {
+    return <p>Cargando formulario...</p>;
+  }
+
+  return (
+    <div>
+      <h1>{isEditing ? 'Editar Organismo' : 'Crear Nuevo Organismo'}</h1>
+      
+      <form onSubmit={handleSubmit}>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {success && <p style={{ color: 'green' }}>{success}</p>}
+
+        <div className="form-group">
+          <label htmlFor="name">Nombre:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            disabled={isSubmitting}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="genus">Género:</label>
+          <input
+            type="text"
+            id="genus"
+            name="genus"
+            value={formData.genus}
+            onChange={handleChange}
+            required
+            disabled={isSubmitting}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="species">Especie:</label>
+          <input
+            type="text"
+            id="species"
+            name="species"
+            value={formData.species}
+            onChange={handleChange}
+            required
+            disabled={isSubmitting}
+          />
+        </div>
+        <div className="form-actions">
+          <button type="submit" className="button-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Guardando...' : (isEditing ? 'Actualizar Organismo' : 'Crear Organismo')}
+          </button>
+          <button type="button" className="button-secondary" onClick={() => navigate('/ceparium/organisms')} disabled={isSubmitting}>
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default OrganismFormPage;

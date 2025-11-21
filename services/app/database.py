@@ -4,16 +4,9 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from .core.config import settings # <-- IMPORTACIÓN AÑADIDA
 
 # --- Creación del Motor de la Base de Datos ---
-# Aquí se usa la URL que definimos en el archivo de configuración.
-# El argumento connect_args es específico y necesario para SQLite.
-engine = create_engine(
-    settings.SQLALCHEMY_DATABASE_URL,
-    connect_args={
-        "check_same_thread": False,
-        "timeout": 30  # Aumentar timeout para evitar errores de database locked
-    },
-    pool_pre_ping=True  # Verificar conexiones antes de usarlas
-)
+# Usamos la URL de la base de datos desde nuestra configuración centralizada.
+# Esto nos permite cambiar fácilmente entre SQLite, MySQL y PostgreSQL.
+engine = create_engine(settings.SQLALCHEMY_DATABASE_URL)
 
 # --- Creación de la Fábrica de Sesiones ---
 # SessionLocal será la clase que usaremos para crear nuestras sesiones de BD.
