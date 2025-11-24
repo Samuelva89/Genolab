@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 // Definir la interfaz para un Organism, basada en los schemas del backend
@@ -239,7 +240,7 @@ const CepariumPage: React.FC = () => {
         {loadingOrganisms ? (
           <p>Cargando organismos...</p>
         ) : errorOrganisms ? (
-          <p style={{ color: "red" }}>{errorOrganisms}</p>
+          <p className="error-message">{errorOrganisms}</p>
         ) : organisms.length === 0 ? (
           <p>No hay organismos registrados.</p>
         ) : (
@@ -265,13 +266,14 @@ const CepariumPage: React.FC = () => {
           {loadingStrains ? (
             <p>Cargando cepas...</p>
           ) : errorStrains ? (
-            <p style={{ color: "red" }}>{errorStrains}</p>
+            <p className="error-message">{errorStrains}</p>
           ) : (
             <select
               id="strain-select"
               value={selectedStrainId}
               onChange={(e) => setSelectedStrainId(Number(e.target.value))}
               disabled={strains.length === 0}
+              className="form-control"
             >
               <option value="">-- Selecciona una Cepa --</option>
               {strains.map((strain) => (
@@ -283,12 +285,13 @@ const CepariumPage: React.FC = () => {
           )}
         </div>
 
-        <div style={{ marginTop: "10px" }}>
+        <div className="upload-section">
           <label htmlFor="analysis-type-select">Tipo de Análisis:</label>
           <select
             id="analysis-type-select"
             value={selectedAnalysisType}
             onChange={(e) => setSelectedAnalysisType(e.target.value)}
+            className="form-control"
           >
             <option value="fasta_count">FASTA Count</option>
             <option value="fasta_gc_content">FASTA GC Content</option>
@@ -298,8 +301,8 @@ const CepariumPage: React.FC = () => {
           </select>
         </div>
 
-        <div style={{ marginTop: "10px" }}>
-          <input type="file" onChange={handleFileChange} />
+        <div className="upload-section">
+          <input type="file" onChange={handleFileChange} className="form-control" />
           <button
             onClick={handleFileUpload}
             disabled={!selectedFile || !selectedStrainId || uploading}
@@ -311,17 +314,11 @@ const CepariumPage: React.FC = () => {
 
         {selectedFile && <p>Archivo seleccionado: {selectedFile.name}</p>}
         {uploading && <p>Cargando archivo...</p>}
-        {uploadError && <p style={{ color: "red" }}>{uploadError}</p>}
-        {uploadSuccess && <p style={{ color: "green" }}>{uploadSuccess}</p>}
+        {uploadError && <p className="error-message">{uploadError}</p>}
+        {uploadSuccess && <p className="success-message">{uploadSuccess}</p>}
 
         {taskId && (
-          <div
-            style={{
-              marginTop: "15px",
-              borderTop: "1px solid #eee",
-              paddingTop: "10px",
-            }}
-          >
+          <div className="analysis-status">
             <h3>Estado de la Tarea de Análisis (ID: {taskId})</h3>
             {taskStatus ? (
               <div>
@@ -330,7 +327,7 @@ const CepariumPage: React.FC = () => {
                   <p>Progreso: {taskStatus.progress}%</p>
                 )}
                 {taskStatus.state === "SUCCESS" && taskStatus.result && (
-                  <div>
+                  <div className="analysis-results">
                     <h4>Resultados:</h4>
                     {formatAnalysisResult(
                       taskStatus.result,
@@ -339,7 +336,7 @@ const CepariumPage: React.FC = () => {
                   </div>
                 )}
                 {taskStatus.state === "FAILURE" && (
-                  <p style={{ color: "red" }}>Error: {taskStatus.error}</p>
+                  <p className="task-error">Error: {taskStatus.error}</p>
                 )}
               </div>
             ) : (

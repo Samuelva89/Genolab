@@ -5,6 +5,7 @@ import OrganismListPage from './pages/OrganismListPage';
 import OrganismDetailPage from './pages/OrganismDetailPage';
 import OrganismFormPage from './pages/OrganismFormPage';
 import StrainFormPage from './pages/StrainFormPage';
+import StrainAnalysisPage from './pages/StrainAnalysisPage';
 import CepariumPage from './pages/CepariumPage';
 import Sidebar from './components/Sidebar'; // Importar el nuevo Sidebar
 
@@ -26,6 +27,7 @@ function App() {
             <Route path="/ceparium/organisms/:id" element={<OrganismDetailPage />} />
             <Route path="/ceparium/organisms/:id/edit" element={<OrganismFormPage />} />
             <Route path="/ceparium/organisms/:organismId/strains/create" element={<StrainFormPage />} />
+            <Route path="/ceparium/strains/:id/analyses" element={<StrainAnalysisPage />} />
             <Route path="/" element={
               <div className="welcome-page">
                 <h1>Bienvenido a FUNJILAP</h1>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -107,11 +107,16 @@ const OrganismDetailPage: React.FC = () => {
         <ul className="data-list">
           {strains.map((strain) => (
             <li key={strain.id} className="data-list-item">
-              <Link to={`/ceparium/strains/${strain.id}`}>
-                <strong>{strain.strain_name}</strong> (Fuente: {strain.source || 'N/A'})
-              </Link>
-              <div className="data-list-item-actions">
-                <button className="button-danger" onClick={() => handleDeleteStrain(strain.id)}>Eliminar</button>
+              <div>
+                <Link to={`/ceparium/strains/${strain.id}`}>
+                  <strong>{strain.strain_name}</strong> (Fuente: {strain.source || 'N/A'})
+                </Link>
+                <div className="data-list-item-actions">
+                  <Link to={`/ceparium/strains/${strain.id}/analyses`}>
+                    <button className="button-secondary">Ver Análisis</button>
+                  </Link>
+                  <button className="button-danger" onClick={() => handleDeleteStrain(strain.id)}>Eliminar</button>
+                </div>
               </div>
             </li>
           ))}

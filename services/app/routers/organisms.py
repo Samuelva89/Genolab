@@ -19,17 +19,17 @@ router = APIRouter(
 
 @router.post("/organisms/", response_model=schemas.Organism)
 def create_organism(
-    organism: schemas.OrganismCreate, 
+    organism: schemas.OrganismCreate,
     db: Session = Depends(get_db)
 ):
     """
     Crea un nuevo organismo.
-    """    
+    """
     # Verificamos si ya existe un organismo con ese nombre para evitar duplicados.
     db_organism = crud.get_organism_by_name(db, name=organism.name)
     if db_organism:
         raise HTTPException(status_code=400, detail="El nombre del organismo ya existe.")
-    
+
     return crud.create_organism(db=db, organism=organism)
 
 @router.get("/organisms/", response_model=List[schemas.Organism])
@@ -49,11 +49,11 @@ def read_organism(organism_id: int, db: Session = Depends(get_db)):
     """
     # Usamos la función que ya existe en crud.py para buscar el organismo
     db_organism = crud.get_organism(db, organism_id=organism_id)
-    
+
     # Si no se encuentra, devolvemos un error 404 "Not Found"
     if db_organism is None:
         raise HTTPException(status_code=404, detail="Organismo no encontrado.")
-        
+
     return db_organism
 
 @router.get("/organisms/{organism_id}/strains", response_model=List[schemas.Strain])
@@ -75,7 +75,7 @@ def create_strain(
     """
     Crea una nueva cepa.
     """
-    
+
     # Verificamos que el 'organism_id' que se proporciona para la cepa realmente exista.
     db_organism = crud.get_organism(db, organism_id=strain.organism_id)
     if not db_organism:
@@ -92,6 +92,17 @@ def read_strains(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
     strains = crud.get_strains(db, skip=skip, limit=limit)
     return strains
 
+@router.get("/strains/{strain_id}", response_model=schemas.Strain)
+def read_strain(strain_id: int, db: Session = Depends(get_db)):
+    """
+    Devuelve una cepa específica por su ID.
+    Ruta pública.
+    """
+    strain = crud.get_strain(db, strain_id=strain_id)
+    if not strain:
+        raise HTTPException(status_code=404, detail="Cepa no encontrada.")
+    return strain
+
 @router.put("/organisms/{organism_id}", response_model=schemas.Organism)
 def update_organism(
     organism_id: int,
@@ -104,10 +115,10 @@ def update_organism(
 
     # Llama a la función del CRUD para hacer la actualización.
     db_organism = crud.update_organism(db, organism_id=organism_id, organism_in=organism_in)
-    
+
     if db_organism is None:
         raise HTTPException(status_code=404, detail="Organismo no encontrado.")
-        
+
     return db_organism
 
 
@@ -122,8 +133,8 @@ def delete_organism(
 
     # Llama a la función del CRUD para eliminar.
     db_organism = crud.delete_organism(db, organism_id=organism_id)
-    
+
     if db_organism is None:
         raise HTTPException(status_code=404, detail="Organismo no encontrado.")
-        
+
     return db_organism

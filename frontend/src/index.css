@@ -29,177 +29,6 @@ body {
   width: 100%; /* Asegurar que ocupe todo el ancho disponible */
 }
 
-/* --- Global styles for Ceparium components --- */
-
-/* Estilos para la página Ceparium en general */
-.ceparium-page {
-  background-color: #242424; /* Un gris un poco más claro que el fondo general */
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  margin-top: 20px;
-  text-align: left; /* Alineación de texto por defecto a la izquierda */
-  color: #FFFFFF;
-}
-
-.ceparium-page h1 {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.ceparium-page section {
-  background-color: #333333; /* Fondo para las secciones */
-  padding: 15px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  border: 1px solid #444444;
-}
-
-.ceparium-page section h2 {
-  color: #84BD00; /* Títulos de sección en Verde SENA */
-  margin-top: 0;
-  border-bottom: 1px solid #84BD00;
-  padding-bottom: 10px;
-  margin-bottom: 15px;
-}
-
-/* Estilos para la sección de visualización de datos */
-.data-visualization ul {
-  list-style: none;
-  padding: 0;
-}
-
-.data-visualization li {
-  background-color: #444444;
-  margin-bottom: 8px;
-  padding: 10px 15px;
-  border-radius: 4px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.data-visualization li a {
-  color: #FFFFFF;
-  text-decoration: none;
-}
-
-.data-visualization li a:hover {
-  color: #84BD00;
-}
-
-.data-visualization button {
-  background-color: #84BD00;
-  color: #000000;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.data-visualization button:hover {
-  background-color: #72a500;
-}
-
-/* Estilos para la sección de carga de archivos */
-.file-upload div {
-  margin-bottom: 10px;
-}
-
-.file-upload label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #FFFFFF;
-}
-
-.file-upload select,
-.file-upload input[type="text"],
-.file-upload input[type="number"] {
-  width: calc(100% - 22px); /* Ajustar para padding y borde */
-  padding: 10px;
-  border: 1px solid #84BD00;
-  border-radius: 4px;
-  background-color: #0d0f07;
-  color: #FFFFFF;
-}
-
-.file-upload input[type="file"] {
-  width: 100%;
-  padding: 8px 0;
-  border: 1px solid #84BD00;
-  border-radius: 4px;
-  background-color: #0d0f07;
-  color: #FFFFFF;
-  cursor: pointer;
-}
-
-.file-upload input[type="file"]::-webkit-file-upload-button {
-  background-color: #84BD00;
-  color: #000000;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 10px;
-  transition: background-color 0.2s;
-}
-
-.file-upload input[type="file"]::-webkit-file-upload-button:hover {
-  background-color: #72a500;
-}
-
-.file-upload button {
-  background-color: #84BD00;
-  color: #000000;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-left: 10px;
-  transition: background-color 0.2s;
-}
-
-.file-upload button:disabled {
-  background-color: #555555;
-  cursor: not-allowed;
-}
-
-.file-upload button:hover:not(:disabled) {
-  background-color: #72a500;
-}
-
-.file-upload p {
-  margin-top: 10px;
-  font-size: 0.9em;
-}
-
-.file-upload p[style*="color: red"] {
-  color: #ff6b6b !important;
-}
-
-.file-upload p[style*="color: green"] {
-  color: #6aff6b !important;
-}
-
-/* Estilos para el estado de la tarea */
-.file-upload h3 {
-  color: #84BD00;
-  margin-top: 20px;
-  border-bottom: 1px solid #84BD00;
-  padding-bottom: 5px;
-}
-
-.file-upload pre {
-  background-color: #1a1a1a;
-  color: #FFFFFF;
-  padding: 10px;
-  border-radius: 4px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
 
 h1 {
   font-size: 3.2em;
@@ -225,6 +54,28 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto #00BCD4; /* Contorno de enfoque en Bio Blue/Cyan */
+}
+
+/* Primary button styles for institutional green */
+.button-primary {
+  background-color: #84BD00; /* Verde SENA */
+  color: #000000;
+  border: none;
+  padding: 0.6em 1.2em; /* Consistent with default button padding */
+  border-radius: 8px; /* Consistent with default button border-radius */
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.button-primary:hover {
+  background-color: #72a500; /* Un poco más oscuro para el hover */
+  color: #FFFFFF;
+}
+
+.button-primary:disabled {
+  background-color: #555555;
+  color: #cccccc;
+  cursor: not-allowed;
 }
 
 /* Redefinir #root styles, o ajustarlos si ya fueron movidos */

@@ -332,3 +332,26 @@ def download_analysis_results_as_txt(
     # Return a Response object with the text content and headers
     # Need to import Response from fastapi
     return Response(content=text_content, media_type="text/plain", headers=headers)
+
+
+@router.get("/user/{user_id}/recent-analyses", response_model=List[schemas.Analysis])
+def get_recent_analyses_for_user(
+    user_id: int,
+    limit: int = 10,  # Valor por defecto de 10 análisis recientes
+    db: Session = Depends(get_db)
+):
+    """
+    Devuelve una lista de los análisis más recientes para un usuario específico.
+    """
+    # Verificar si el usuario existe
+    user = crud.get_user(db, user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado.")
+
+    # Obtener los análisis recientes para este usuario
+    analyses = crud.get_analyses(db, skip=0, limit=limit)
+
+    # Filtrar para que solo devuelva análisis del usuario especificado
+    user_analyses = [analysis for analysis in analyses if analysis.owner_id == user_id]
+
+    return user_analyses
