@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "strain_name": "cepa de prueba",
+    "source": "cepa de prueba 2",
+    "organism_id": 1
+  },
+  {
+    "id": 2,
+    "strain_name": "cepa de prueba",
+    "source": "cepa de prueba 3",
+    "organism_id": 1
+  },
+  {
+    "id": 3,
+    "strain_name": "Cepa de Prueba",
+    "source": "Prueba de integración",
+    "organism_id": 4
+  },
+  {
+    "id": 4,
+    "strain_name": "Cepa de prueba API",
+    "source": "Prueba directa",
+    "organism_id": 5
+  }
+]

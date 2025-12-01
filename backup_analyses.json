@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "analysis_type": "raw_file",
+    "results": {
+      "filename": "ejemplo_count.fasta",
+      "file_size": 116,
+      "upload_status": "completed",
+      "message": "Archivo subido directamente sin análisis"
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/528d5c6e-ea2b-4a1b-9a4b-0f4c535e7278-ejemplo_count.fasta",
+    "timestamp": "2025-11-28 20:55:06",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 2,
+    "analysis_type": "raw_file",
+    "results": {
+      "filename": "ejemplo_gc.fasta",
+      "file_size": 49,
+      "upload_status": "completed",
+      "message": "Archivo subido directamente sin análisis"
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/3a59249f-61db-4462-b6d8-d63dba43c1fc-ejemplo_gc.fasta",
+    "timestamp": "2025-11-28 20:55:06",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 3,
+    "analysis_type": "raw_file",
+    "results": {
+      "filename": "ejemplo.fastq",
+      "file_size": 60,
+      "upload_status": "completed",
+      "message": "Archivo subido directamente sin análisis"
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/f1bcd1f4-18b0-4a72-b5c8-e87951fd1ace-ejemplo.fastq",
+    "timestamp": "2025-11-28 20:55:07",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 4,
+    "analysis_type": "raw_file",
+    "results": {
+      "filename": "ejemplo.gbk",
+      "file_size": 659,
+      "upload_status": "completed",
+      "message": "Archivo subido directamente sin análisis"
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/b19e920b-df80-4332-b2b3-690d492f4a14-ejemplo.gbk",
+    "timestamp": "2025-11-28 20:55:07",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 5,
+    "analysis_type": "raw_file",
+    "results": {
+      "filename": "ejemplo.gff",
+      "file_size": 299,
+      "upload_status": "completed",
+      "message": "Archivo subido directamente sin análisis"
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/0768392e-576a-452c-ab28-55146004b183-ejemplo.gff",
+    "timestamp": "2025-11-28 20:55:07",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 6,
+    "analysis_type": "gff_stats",
+    "results": {
+      "filename": "5d43c332-da34-44aa-8a38-fd276c889767-ejemplo.gff",
+      "feature_counts": {
+        "gene": 1,
+        "mRNA": 1,
+        "exon": 2,
+        "CDS": 2
+      }
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/5d43c332-da34-44aa-8a38-fd276c889767-ejemplo.gff",
+    "timestamp": "2025-11-28 21:01:59",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 7,
+    "analysis_type": "fasta_count",
+    "results": {
+      "sequence_count": 2,
+      "filename": "d9b0fc15-7f18-4375-90b3-77a56244d940-ejemplo_gc.fasta"
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/d9b0fc15-7f18-4375-90b3-77a56244d940-ejemplo_gc.fasta",
+    "timestamp": "2025-11-28 21:01:59",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 8,
+    "analysis_type": "fasta_gc_content",
+    "results": {
+      "filename": "be7ce9f6-cb0e-48b6-91c3-96891b56b3c0-ejemplo_count.fasta",
+      "sequence_count": 3,
+      "average_gc_content": 49.28,
+      "individual_gc_contents": [
+        50.0,
+        47.83,
+        50.0
+      ]
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/be7ce9f6-cb0e-48b6-91c3-96891b56b3c0-ejemplo_count.fasta",
+    "timestamp": "2025-11-28 21:02:00",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 9,
+    "analysis_type": "genbank_stats",
+    "results": {
+      "filename": "69275ef0-58fe-40e9-af7e-5523bbab1b75-ejemplo.gbk",
+      "sequence_count": 1,
+      "main_record_id": "U49845",
+      "description": "Saccharomyces cerevisiae TCP1-beta gene, partial cds, and Axl2p (AXL2) and Rev7p (REV7) genes, complete cds",
+      "sequence_length": 180,
+      "feature_count": 2,
+      "molecule_type": "DNA",
+      "topology": "linear"
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/69275ef0-58fe-40e9-af7e-5523bbab1b75-ejemplo.gbk",
+    "timestamp": "2025-11-28 21:02:00",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 10,
+    "analysis_type": "fasta_count",
+    "results": {
+      "sequence_count": 3,
+      "filename": "de40e35a-f793-4758-9755-e3da983a9b2d-ejemplo_count.fasta"
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/de40e35a-f793-4758-9755-e3da983a9b2d-ejemplo_count.fasta",
+    "timestamp": "2025-11-28 21:02:00",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 11,
+    "analysis_type": "fasta_gc_content",
+    "results": {
+      "filename": "8bfe0eba-599e-4e17-adf3-8968cf736d11-ejemplo_gc.fasta",
+      "sequence_count": 2,
+      "average_gc_content": 70.0,
+      "individual_gc_contents": [
+        100.0,
+        40.0
+      ]
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/8bfe0eba-599e-4e17-adf3-8968cf736d11-ejemplo_gc.fasta",
+    "timestamp": "2025-11-28 21:02:00",
+    "strain_id": 1,
+    "owner_id": 1
+  },
+  {
+    "id": 12,
+    "analysis_type": "fastq_stats",
+    "results": {
+      "filename": "159a870a-5bdb-4437-bcf1-fb8dfca93730-ejemplo.fastq",
+      "sequence_count": 2,
+      "avg_sequence_length": 9.5,
+      "min_length": 7,
+      "max_length": 12,
+      "overall_avg_quality": 38.5
+    },
+    "file_url": "http://minio:9000/genolab-bucket/uploads/159a870a-5bdb-4437-bcf1-fb8dfca93730-ejemplo.fastq",
+    "timestamp": "2025-11-28 21:02:00",
+    "strain_id": 1,
+    "owner_id": 1
+  }
+]

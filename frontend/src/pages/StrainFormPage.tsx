@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import BioIcon from '../components/BioIcon';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -52,7 +53,7 @@ const StrainFormPage: React.FC = () => {
     try {
       await axios.post(`${API_BASE_URL}/api/ceparium/strains/`, formData);
       setSuccess('Cepa creada exitosamente.');
-      
+
       setTimeout(() => {
         navigate(`/ceparium/organisms/${organismId}`); // Redirigir a la página de detalles del organismo
       }, 1500);
@@ -65,45 +66,55 @@ const StrainFormPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Crear Nueva Cepa para Organismo ID: {organismId}</h1>
-      
-      <form onSubmit={handleSubmit}>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {success && <p style={{ color: 'green' }}>{success}</p>}
+    <div className="bioinformatics-theme fade-in-up">
+      <div className="bioinformatics-card">
+        <h1><BioIcon type="vial" className="sidebar-icon" is3d /> Crear Nueva Cepa para Organismo ID: {organismId}</h1>
 
-        <div className="form-group">
-          <label htmlFor="strain_name">Nombre de la Cepa:</label>
-          <input
-            type="text"
-            id="strain_name"
-            name="strain_name"
-            value={formData.strain_name}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="source">Fuente:</label>
-          <input
-            type="text"
-            id="source"
-            name="source"
-            value={formData.source}
-            onChange={handleChange}
-            disabled={isSubmitting}
-          />
-        </div>
-        <div className="form-actions">
-          <button type="submit" className="button-primary" disabled={isSubmitting}>
-            {isSubmitting ? 'Creando...' : 'Crear Cepa'}
-          </button>
-          <button type="button" className="button-secondary" onClick={() => navigate(`/ceparium/organisms/${organismId}`)} disabled={isSubmitting}>
-            Cancelar
-          </button>
-        </div>
-      </form>
+        <form onSubmit={handleSubmit}>
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
+
+          <div className="form-group">
+            <label htmlFor="strain_name">Nombre de la Cepa:</label>
+            <input
+              type="text"
+              id="strain_name"
+              name="strain_name"
+              value={formData.strain_name}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="source">Fuente:</label>
+            <input
+              type="text"
+              id="source"
+              name="source"
+              value={formData.source}
+              onChange={handleChange}
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="form-actions">
+            <button type="submit" className="button-primary" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <BioIcon type="upload" className="sidebar-icon" spin /> Creando...
+                </>
+              ) : (
+                <>
+                  <BioIcon type="vial" className="sidebar-icon" is3d /> Crear Cepa
+                </>
+              )}
+            </button>
+            <button type="button" className="button-secondary" onClick={() => navigate(`/ceparium/organisms/${organismId}`)} disabled={isSubmitting}>
+              <BioIcon type="file" className="sidebar-icon" /> Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

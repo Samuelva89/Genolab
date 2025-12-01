@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "prueba",
+    "genus": "prueba",
+    "species": "prueba"
+  },
+  {
+    "id": 2,
+    "name": "sssssss",
+    "genus": "ssssssss",
+    "species": "sssssssss"
+  },
+  {
+    "id": 3,
+    "name": "organismo de prueba",
+    "genus": "organismo de p",
+    "species": "organismo de p a p"
+  },
+  {
+    "id": 4,
+    "name": "Prueba Organismo",
+    "genus": "Test",
+    "species": "test"
+  },
+  {
+    "id": 5,
+    "name": "Prueba API",
+    "genus": "Test",
+    "species": "test"
+  },
+  {
+    "id": 6,
+    "name": "ssssss",
+    "genus": "ggggggggggggg",
+    "species": "kkkkkkk"
+  }
+]

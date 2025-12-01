@@ -5,7 +5,7 @@ echo "Iniciando proceso de inicialización..."
 
 # Crear la base de datos y tablas
 echo "Creando base de datos..."
-python create_db.py
+python recreate_db.py
 
 # Arrancar la aplicación FastAPI
 echo "Arrancando la aplicación..."

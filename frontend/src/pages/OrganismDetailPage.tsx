@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import BioIcon from '../components/BioIcon';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-// Definir las interfaces para Organism y Strain, basadas en los schemas del backend
 interface Organism {
   id: number;
   name: string;
@@ -20,7 +20,8 @@ interface Strain {
 }
 
 const OrganismDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Obtener el ID del organismo de la URL
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const organismId = parseInt(id || '0');
 
   const [organism, setOrganism] = useState<Organism | null>(null);
@@ -29,7 +30,7 @@ const OrganismDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchOrganismDetails = async () => {
+    const fetchOrganismAndStrains = async () => {
       if (isNaN(organismId) || organismId === 0) {
         setError("ID de organismo no válido.");
         setLoading(false);
@@ -49,7 +50,7 @@ const OrganismDetailPage: React.FC = () => {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
           setError('Organismo no encontrado.');
         } else {
-          setError('Error al cargar los detalles del organismo.');
+          setError('Error al cargar los detalles del organismo y sus cepas.');
           console.error('Error fetching organism details or strains:', err);
         }
       } finally {
@@ -57,71 +58,95 @@ const OrganismDetailPage: React.FC = () => {
       }
     };
 
-    fetchOrganismDetails();
+    fetchOrganismAndStrains();
   }, [organismId]);
 
-  const handleDeleteStrain = async (strainId: number) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar esta cepa? Esta acción es irreversible.')) {
+  const handleDelete = async (organismId: number) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este organismo? Esta acción es irreversible.')) {
       try {
-        await axios.delete(`${API_BASE_URL}/api/ceparium/strains/${strainId}`);
-        setStrains(strains.filter((s) => s.id !== strainId));
-        setError(null); // Limpiar errores previos si la eliminación fue exitosa
+        await axios.delete(`${API_BASE_URL}/api/ceparium/organisms/${organismId}`);
+        navigate('/ceparium/organisms'); // Redirect to organisms list after deletion
       } catch (err) {
-        setError('Error al eliminar la cepa.');
-        console.error('Error deleting strain:', err);
-        // Manejo de errores más específico para AxiosError
-        if (axios.isAxiosError(err)) {
-          console.error('Axios error:', err.response?.data || err.message);
-        }
+        setError('Error al eliminar el organismo. Asegúrese de que no tiene cepas asociadas.');
+        console.error('Error deleting organism:', err);
       }
     }
   };
 
   if (loading) {
-    return <p>Cargando detalles del organismo...</p>;
+    return (
+      <div className="bioinformatics-theme">
+        <p>Cargando detalles del organismo...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <p style={{ color: 'red' }}>{error}</p>;
+    return <div className="bioinformatics-theme"><p className="error-message">{error}</p></div>;
   }
 
   if (!organism) {
-    return <p>No se pudo cargar la información del organismo.</p>;
+    return <div className="bioinformatics-theme"><p>No se pudo cargar la información del organismo.</p></div>;
   }
 
   return (
-    <div>
-      <Link to="/ceparium/organisms">Volver al listado de Organismos</Link>
-      <h1>Detalles del Organismo: {organism.name}</h1>
-      <p><strong>Género:</strong> {organism.genus}</p>
-      <p><strong>Especie:</strong> {organism.species}</p>
-      <p><strong>ID:</strong> {organism.id}</p>
+    <div className="bioinformatics-theme fade-in-up">
+      <div className="bioinformatics-card">
+        <Link to="/ceparium/organisms">
+          <BioIcon type="file" className="sidebar-icon" /> Volver a lista de organismos
+        </Link>
+        <h1>
+          <BioIcon type="dna" className="sidebar-icon" is3d /> Detalles del Organismo: {organism.name}
+        </h1>
+        <div className="organism-info">
+          <p><strong>Nombre:</strong> {organism.name}</p>
+          <p><strong>Género:</strong> {organism.genus}</p>
+          <p><strong>Especie:</strong> {organism.species}</p>
+          <p><strong>ID:</strong> {organism.id}</p>
+        </div>
 
-      <h2>Cepas Asociadas</h2>
-      <Link to={`/ceparium/organisms/${organismId}/strains/create`}>
-        <button className="button-primary">Añadir Nueva Cepa</button>
-      </Link>
-      {strains.length === 0 ? (
-        <p>No hay cepas asociadas a este organismo.</p>
-      ) : (
-        <ul className="data-list">
-          {strains.map((strain) => (
-            <li key={strain.id} className="data-list-item">
-              <div>
-                <Link to={`/ceparium/strains/${strain.id}`}>
-                  <strong>{strain.strain_name}</strong> (Fuente: {strain.source || 'N/A'})
+        <div className="form-actions">
+          <Link to={`/ceparium/organisms/${organismId}/edit`}>
+            <button className="button-primary">
+              <BioIcon type="flask" className="sidebar-icon" is3d /> Editar Organismo
+            </button>
+          </Link>
+          <button className="button-danger" onClick={() => handleDelete(organismId)}>
+            <BioIcon type="file" className="sidebar-icon" is3d /> Eliminar Organismo
+          </button>
+        </div>
+
+        <h2><BioIcon type="vial" className="sidebar-icon" is3d /> Cepas Asociadas</h2>
+        {strains.length === 0 ? (
+          <p>No hay cepas asociadas a este organismo.</p>
+        ) : (
+          <ul className="data-list">
+            {strains.map((strain) => (
+              <li key={strain.id} className="data-list-item">
+                <Link to={`/ceparium/strains/${strain.id}/analyses`}>
+                  <BioIcon type="microscope" className="sidebar-icon" is3d />
+                  {strain.strain_name} (ID: {strain.id})
                 </Link>
                 <div className="data-list-item-actions">
                   <Link to={`/ceparium/strains/${strain.id}/analyses`}>
-                    <button className="button-secondary">Ver Análisis</button>
+                    <button className="button-primary">
+                      <BioIcon type="chart" className="sidebar-icon" is3d /> Ver Análisis
+                    </button>
                   </Link>
-                  <button className="button-danger" onClick={() => handleDeleteStrain(strain.id)}>Eliminar</button>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="form-actions">
+          <Link to={`/ceparium/organisms/${organismId}/strains/create`}>
+            <button className="button-primary">
+              <BioIcon type="vial" className="sidebar-icon" is3d /> Crear Nueva Cepa
+            </button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { FaHome, FaDna, FaMicroscope, FaPlus, FaChartBar, FaTimes } from 'react-icons/fa';
 import './Sidebar.css';
 
 interface SidebarProps {
@@ -18,34 +19,78 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   return (
     <aside className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
       <div className="sidebar-header">
-        <h2>FUNJILAP</h2>
+        <h2>GENOLAB</h2>
         <button className="sidebar-close-button" onClick={onClose}>
-          &times;
+          <FaTimes />
         </button>
       </div>
       <nav className="sidebar-nav">
         <ul>
           <li>
-            <NavLink to="/" onClick={handleNavLinkClick} className={({ isActive }) => (isActive ? 'active' : '')}>
-              Inicio
+            <NavLink
+              to="/"
+              onClick={handleNavLinkClick}
+              className={({ isActive }) => isActive ? 'active' : ''}
+              end // Asegura que solo se active cuando la ruta es exacta
+            >
+              <FaHome className="sidebar-icon" /> Inicio
             </NavLink>
           </li>
           <li>
-            <NavLink to="/ceparium" onClick={handleNavLinkClick} className={({ isActive }) => (isActive ? 'active' : '')}>
-              Ceparium
+            <NavLink
+              to="/ceparium"
+              onClick={handleNavLinkClick}
+              className={({ isActive }) => isActive ? 'active' : ''}
+              end // Asegura que solo se active cuando la ruta es exacta
+            >
+              <FaDna className="sidebar-icon" /> Ceparium
             </NavLink>
           </li>
           <li>
-            <NavLink to="/ceparium/organisms" onClick={handleNavLinkClick} className={({ isActive }) => (isActive ? 'active' : '')}>
-              Organismos
+            <NavLink
+              to="/ceparium/organisms"
+              onClick={handleNavLinkClick}
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              <FaMicroscope className="sidebar-icon" /> Organismos
             </NavLink>
           </li>
           <li>
-            <NavLink to="/ceparium/organisms/create" onClick={handleNavLinkClick} className={({ isActive }) => (isActive ? 'active' : '')}>
-              Crear Organismo
+            <NavLink
+              to="/ceparium/strains/create"
+              onClick={handleNavLinkClick}
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              <FaPlus className="sidebar-icon" /> Crear Cepa
             </NavLink>
           </li>
-          {/* Puedes añadir más enlaces aquí en el futuro */}
+          <li>
+            <NavLink
+              to="/ceparium/organisms/create"
+              onClick={handleNavLinkClick}
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              <FaPlus className="sidebar-icon" /> Crear Organismo
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/ceparium/analyses"
+              onClick={handleNavLinkClick}
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              <FaChartBar className="sidebar-icon" /> Análisis
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/ceparium/user-analyses"
+              onClick={handleNavLinkClick}
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              <FaChartBar className="sidebar-icon" /> Mis Análisis
+            </NavLink>
+          </li>
         </ul>
       </nav>
     </aside>

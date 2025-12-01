@@ -1,4 +1,4 @@
-# Configuración del Proyecto FunjiLapV1 API
+# Configuración del Proyecto Genolab API
 
 ## Requisitos Previos
 
@@ -12,7 +12,7 @@
 
 ```bash
 git clone <url-del-repositorio>
-cd FUNJILAP/services
+cd GENOLAB/services
 ```
 
 ### 2. Configuración del Entorno
@@ -30,13 +30,13 @@ Luego edita el archivo `.env` y asegúrate de tener al menos las siguientes vari
 
 ```env
 # Base de datos (SQLite por defecto para desarrollo)
-SQLALCHEMY_DATABASE_URL=sqlite:///./fungilap.db
+SQLALCHEMY_DATABASE_URL=sqlite:///./genolab.db
 
 # MinIO (si estás usando Docker Compose, mantén estos valores)
 MINIO_ENDPOINT=http://minio:9000
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin123
-MINIO_BUCKET_NAME=fungilap-bucket
+MINIO_BUCKET_NAME=genolab-bucket
 
 # Redis (si estás usando Docker Compose, mantén estos valores)
 REDIS_URL=redis://redis:6379/0

@@ -1,0 +1,221 @@
+.bio-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, color 0.3s ease;
+  color: #14b62a; /* Verde SENA */
+  position: relative;
+}
+
+.bio-icon:hover {
+  transform: scale(1.1);
+  color: #119c24;
+}
+
+/* 3D Effect Styles */
+.bio-icon-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  position: relative;
+  display: inline-block;
+}
+
+.bio-icon-3d .icon-front {
+  transform: translateZ(10px);
+  position: relative;
+  z-index: 10;
+  display: inline-block;
+}
+
+.bio-icon-3d .icon-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateZ(-10px) rotateX(180deg);
+  opacity: 0.6;
+  z-index: 0;
+  display: inline-block;
+}
+
+.bio-icon-3d .icon-side {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(20, 182, 42, 0.3);
+  transform: rotateY(90deg) translateZ(5px);
+  z-index: 5;
+  border-radius: 2px; /* Match the icon's shape if needed */
+}
+
+.bio-icon-3d:hover {
+  transform: translateZ(20px) rotateY(10deg) rotateX(10deg);
+}
+
+/* Additional 3D rotations for different icon types */
+.bio-icon-3d[data-type="dna"]:hover {
+  animation: rotate3d 5s infinite linear;
+}
+
+.bio-icon-3d[data-type="microscope"]:hover {
+  animation: rotate3dY 4s infinite linear;
+}
+
+.bio-icon-3d[data-type="vial"]:hover {
+  animation: float3d 3s ease-in-out infinite;
+}
+
+/* 3D Rotation animations */
+@keyframes rotate3d {
+  0% { transform: rotateX(0deg) rotateY(0deg); }
+  25% { transform: rotateX(20deg) rotateY(45deg); }
+  50% { transform: rotateX(0deg) rotateY(90deg); }
+  75% { transform: rotateX(-20deg) rotateY(135deg); }
+  100% { transform: rotateX(0deg) rotateY(180deg); }
+}
+
+@keyframes rotate3dY {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+@keyframes float3d {
+  0% { transform: translateY(0px) translateZ(0px); }
+  50% { transform: translateY(-5px) translateZ(5px); }
+  100% { transform: translateY(0px) translateZ(0px); }
+}
+
+/* Enhanced box-shadow for depth */
+.bio-icon-3d {
+  box-shadow:
+    0 10px 20px rgba(0,0,0,0.1),
+    0 6px 6px rgba(0,0,0,0.1);
+}
+
+.bio-icon-3d:hover {
+  box-shadow:
+    0 15px 30px rgba(0,0,0,0.2),
+    0 10px 10px rgba(0,0,0,0.15);
+}
+
+.bio-icon.small {
+  font-size: 1em;
+}
+
+.bio-icon.medium {
+  font-size: 1.2em;
+}
+
+.bio-icon.large {
+  font-size: 1.5em;
+}
+
+/* Efecto de rotación para iconos con spin */
+.bio-icon.spin {
+  animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Efecto de pulso para iconos con pulse */
+.bio-icon.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Efecto de flotación para iconos específicos de bioinformática */
+.bio-icon[data-type="dna"] {
+  animation: float 3s ease-in-out infinite;
+}
+
+.bio-icon[data-type="microscope"] {
+  animation: float 4s ease-in-out infinite 0.5s;
+}
+
+.bio-icon[data-type="vial"] {
+  animation: float 3.5s ease-in-out infinite 1s;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Responsive adjustments for 3D icons */
+@media (max-width: 768px) {
+  .bio-icon-3d {
+    transform-style: preserve-3d;
+    perspective: 500px; /* Reduced perspective for smaller screens */
+  }
+
+  .bio-icon-3d .icon-front {
+    transform: translateZ(5px); /* Reduced depth on small screens */
+  }
+
+  .bio-icon-3d .icon-back {
+    transform: translateZ(-5px) rotateX(180deg); /* Reduced depth on small screens */
+  }
+
+  .bio-icon-3d .icon-side {
+    transform: rotateY(90deg) translateZ(3px); /* Reduced depth on small screens */
+  }
+
+  .bio-icon-3d:hover {
+    transform: translateZ(10px) rotateY(5deg) rotateX(5deg); /* Reduced rotation on small screens */
+  }
+
+  /* Reduce animation intensity on smaller screens */
+  .bio-icon-3d[data-type="dna"]:hover {
+    animation: rotate3d 8s infinite linear; /* Slower animation on mobile */
+  }
+
+  .bio-icon-3d[data-type="microscope"]:hover {
+    animation: rotate3dY 6s infinite linear; /* Slower animation on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .bio-icon-3d {
+    transform-style: preserve-3d;
+    perspective: 300px; /* Further reduced perspective for very small screens */
+  }
+
+  .bio-icon-3d .icon-front {
+    transform: translateZ(3px); /* Minimal depth on tiny screens */
+  }
+
+  .bio-icon-3d .icon-back {
+    transform: translateZ(-3px) rotateX(180deg); /* Minimal depth on tiny screens */
+  }
+
+  .bio-icon-3d .icon-side {
+    transform: rotateY(90deg) translateZ(2px); /* Minimal depth on tiny screens */
+  }
+
+  .bio-icon-3d:hover {
+    transform: translateZ(5px) rotateY(3deg) rotateX(3deg); /* Minimal rotation on tiny screens */
+  }
+
+  /* Disable complex animations on very small screens to preserve performance */
+  .bio-icon-3d[data-type="dna"]:hover {
+    animation: none;
+  }
+
+  .bio-icon-3d[data-type="microscope"]:hover {
+    animation: none;
+  }
+
+  .bio-icon-3d[data-type="vial"]:hover {
+    animation: none;
+  }
+}

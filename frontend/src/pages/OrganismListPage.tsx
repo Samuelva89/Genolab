@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import BioIcon from '../components/BioIcon';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -48,37 +49,50 @@ const OrganismListPage: React.FC = () => {
 
 
   if (loading) {
-    return <p>Cargando organismos...</p>;
+    return <div className="bioinformatics-theme"><p>Cargando organismos...</p></div>;
   }
 
   if (error) {
-    return <p style={{ color: 'red' }}>{error}</p>;
+    return <div className="bioinformatics-theme"><p className="error-message">{error}</p></div>;
   }
 
   return (
-    <div>
-      <h1>Listado de Organismos</h1>
-      <Link to="/ceparium/organisms/create">
-        <button className="button-primary">Crear Nuevo Organismo</button>
-      </Link>
+    <div className="bioinformatics-theme fade-in-up">
+      <div className="bioinformatics-card">
+        <h1><BioIcon type="dna" className="sidebar-icon" is3d /> Listado de Organismos</h1>
+        <Link to="/ceparium/organisms/create">
+          <button className="button-primary">
+            <BioIcon type="vial" className="sidebar-icon" is3d /> Crear Nuevo Organismo
+          </button>
+        </Link>
+      </div>
       {organisms.length === 0 ? (
-        <p>No hay organismos registrados.</p>
+        <div className="bioinformatics-card">
+          <p>No hay organismos registrados.</p>
+        </div>
       ) : (
-        <ul className="data-list">
-          {organisms.map((organism) => (
-            <li key={organism.id} className="data-list-item">
-              <Link to={`/ceparium/organisms/${organism.id}`}>
-                {organism.name} ({organism.genus} {organism.species})
-              </Link>
-              <div className="data-list-item-actions">
-                <Link to={`/ceparium/organisms/${organism.id}/edit`}>
-                  <button className="button-primary">Editar</button>
+        <div className="bioinformatics-card">
+          <ul className="data-list">
+            {organisms.map((organism) => (
+              <li key={organism.id} className="data-list-item">
+                <Link to={`/ceparium/organisms/${organism.id}`}>
+                  <BioIcon type="microscope" className="sidebar-icon" is3d />
+                  {organism.name} ({organism.genus} {organism.species})
                 </Link>
-                <button className="button-danger" onClick={() => handleDelete(organism.id)}>Eliminar</button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                <div className="data-list-item-actions">
+                  <Link to={`/ceparium/organisms/${organism.id}/edit`}>
+                    <button className="button-primary">
+                      <BioIcon type="flask" className="sidebar-icon" is3d /> Editar
+                    </button>
+                  </Link>
+                  <button className="button-danger" onClick={() => handleDelete(organism.id)}>
+                    <BioIcon type="file" className="sidebar-icon" is3d /> Eliminar
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

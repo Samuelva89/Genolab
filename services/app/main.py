@@ -7,7 +7,7 @@ from slowapi.errors import RateLimitExceeded
 from .celery_worker import celery_app # Importamos la instancia de Celery
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.middleware import SlowAPIMiddleware
-from .routers import users, auth, organisms, analysis
+from .routers import users, auth, organisms, analysis, stats
 from contextlib import asynccontextmanager
 import boto3
 from botocore.exceptions import ClientError
@@ -68,9 +68,9 @@ async def lifespan(app: FastAPI):
 # La metadata que se añade aquí (title, version, description)
 # aparecerá en la documentación automática de la API (en /docs).
 app = FastAPI(
-  title="FunjiLapV1 API",
+  title="Genolab API",
   version="0.3.0", # Subí la versión por la nueva funcionalidad de admin
-  description="Una API para gestionar un cepario de organismos (FunjiLapV1) y realizar análisis bioinformáticos.",
+  description="Una API para gestionar un cepario de organismos (Genolab) y realizar análisis bioinformáticos.",
   lifespan=lifespan
 )
 
@@ -78,6 +78,7 @@ app = FastAPI(
 origins = [
     "http://localhost",
     "http://localhost:80",
+    "http://localhost:8080", # Puerto para el frontend en Docker
     "http://localhost:3000", # Puerto común para desarrollo de frontend
     "http://localhost:5173", # Puerto por defecto de Vite
 ]
@@ -113,6 +114,7 @@ api_router.include_router(users.router)
 # api_router.include_router(auth.router)  # Deshabilitado temporalmente
 api_router.include_router(organisms.router)
 api_router.include_router(analysis.router)
+api_router.include_router(stats.router)
 
 app.include_router(api_router)
 
@@ -124,4 +126,4 @@ def health_check():
 # Esta es la primera ruta que alguien ve cuando visita la URL principal de la API.
 @app.get("/")
 def read_root():
-    return {"message": "Bienvenido a FunjiLapV1 API. Visita /docs para ver la documentación."}
+    return {"message": "Bienvenido a Genolab API. Visita /docs para ver la documentación."}

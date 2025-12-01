@@ -38,17 +38,16 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env
+      - ./services/.env
     environment:
       - MINIO_ENDPOINT=http://minio:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin123
-      - MINIO_BUCKET_NAME=fungilap-bucket
+      - MINIO_BUCKET_NAME=genolab-bucket
       - REDIS_URL=redis://redis:6379/0
-      - SQLALCHEMY_DATABASE_URL=sqlite:///./fungilap.db
     volumes:
       - ./services:/app
-      - sqlite_data:/app/data
+      - ./services/data:/app/data
     depends_on:
       redis:
         condition: service_healthy
@@ -61,14 +60,13 @@ services:
       context: ./services
       dockerfile: Dockerfile
     env_file:
-      - .env
+      - ./services/.env
     environment:
       - MINIO_ENDPOINT=http://minio:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin123
-      - MINIO_BUCKET_NAME=fungilap-bucket
+      - MINIO_BUCKET_NAME=genolab-bucket
       - REDIS_URL=redis://redis:6379/0
-      - SQLALCHEMY_DATABASE_URL=sqlite:///./fungilap.db
     volumes:
       - ./services:/app
     depends_on:

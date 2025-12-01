@@ -2,34 +2,37 @@
 
 /* Estilos para la página Ceparium en general */
 .ceparium-page {
-  background-color: #242424; /* Un gris un poco más claro que el fondo general */
+  background-color: #f8f9fa; /* Fondo claro para contraste con el sidebar */
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
   text-align: left; /* Alineación de texto por defecto a la izquierda */
-  color: #FFFFFF;
+  color: #495057;
 }
 
 .ceparium-page h1 {
   text-align: center;
   margin-bottom: 30px;
+  color: #14b62a; /* Verde SENA para títulos principales */
 }
 
 .ceparium-page section {
-  background-color: #333333; /* Fondo para las secciones */
+  background-color: #ffffff; /* Fondo blanco para secciones */
   padding: 15px;
-  border-radius: 5px;
+  border-radius: 8px;
   margin-bottom: 20px;
-  border: 1px solid #444444;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .ceparium-page section h2 {
-  color: #84BD00; /* Títulos de sección en Verde SENA */
+  color: #14b62a; /* Títulos de sección en Verde SENA */
   margin-top: 0;
-  border-bottom: 1px solid #84BD00;
+  border-bottom: 2px solid #d0f0d6; /* Línea inferior sutil en verde claro */
   padding-bottom: 10px;
   margin-bottom: 15px;
+  font-weight: 600;
 }
 
 /* Estilos para la sección de visualización de datos */
@@ -39,36 +42,45 @@
 }
 
 .data-visualization li {
-  background-color: #444444;
+  background-color: #ffffff;
   margin-bottom: 8px;
-  padding: 10px 15px;
-  border-radius: 4px;
+  padding: 12px 15px;
+  border-radius: 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.data-visualization li:hover {
+  box-shadow: 0 4px 8px rgba(20, 182, 42, 0.1);
+  border-color: #c3e6cb;
 }
 
 .data-visualization li a {
-  color: #FFFFFF;
+  color: #495057;
   text-decoration: none;
+  font-weight: 500;
 }
 
 .data-visualization li a:hover {
-  color: #84BD00;
+  color: #14b62a;
 }
 
 .data-visualization button {
-  background-color: #84BD00;
-  color: #000000;
+  background-color: #14b62a;
+  color: #ffffff;
   border: none;
-  padding: 5px 10px;
+  padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .data-visualization button:hover {
-  background-color: #72a500;
+  background-color: #119c24;
+  transform: translateY(-1px); /* Efecto de elevación sutil */
 }
 
 /* Estilos para la sección de carga de archivos */
@@ -79,8 +91,8 @@
 .file-upload label {
   display: block;
   margin-bottom: 5px;
-  font-weight: bold;
-  color: #FFFFFF;
+  font-weight: 600;
+  color: #495057;
 }
 
 .file-upload select,
@@ -88,25 +100,41 @@
 .file-upload input[type="number"] {
   width: calc(100% - 22px); /* Ajustar para padding y borde */
   padding: 10px;
-  border: 1px solid #84BD00;
-  border-radius: 4px;
-  background-color: #0d0f07;
-  color: #FFFFFF;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #495057;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.file-upload select:focus,
+.file-upload input[type="text"]:focus,
+.file-upload input[type="number"]:focus {
+  border-color: #14b62a;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(20, 182, 42, 0.15);
 }
 
 .file-upload input[type="file"] {
   width: 100%;
   padding: 8px 0;
-  border: 1px solid #84BD00;
-  border-radius: 4px;
-  background-color: #0d0f07;
-  color: #FFFFFF;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #495057;
   cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.file-upload input[type="file"]:focus {
+  border-color: #14b62a;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(20, 182, 42, 0.15);
 }
 
 .file-upload input[type="file"]::-webkit-file-upload-button {
-  background-color: #84BD00;
-  color: #000000;
+  background-color: #14b62a;
+  color: #ffffff;
   border: none;
   padding: 8px 12px;
   border-radius: 4px;
@@ -116,27 +144,29 @@
 }
 
 .file-upload input[type="file"]::-webkit-file-upload-button:hover {
-  background-color: #72a500;
+  background-color: #119c24;
 }
 
 .file-upload button {
-  background-color: #84BD00;
-  color: #000000;
+  background-color: #14b62a;
+  color: #ffffff;
   border: none;
   padding: 10px 20px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   margin-left: 10px;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
+  font-weight: 500;
 }
 
 .file-upload button:disabled {
-  background-color: #555555;
+  background-color: #6c757d;
   cursor: not-allowed;
 }
 
 .file-upload button:hover:not(:disabled) {
-  background-color: #72a500;
+  background-color: #119c24;
+  transform: translateY(-1px); /* Efecto de elevación sutil */
 }
 
 .file-upload p {
@@ -144,28 +174,23 @@
   font-size: 0.9em;
 }
 
-.file-upload p[style*="color: red"] {
-  color: #ff6b6b !important;
-}
-
-.file-upload p[style*="color: green"] {
-  color: #6aff6b !important;
-}
-
 /* Estilos para el estado de la tarea */
 .file-upload h3 {
-  color: #84BD00;
+  color: #14b62a;
   margin-top: 20px;
-  border-bottom: 1px solid #84BD00;
+  border-bottom: 2px solid #d0f0d6; /* Línea inferior sutil en verde claro */
   padding-bottom: 5px;
+  font-weight: 600;
 }
 
 .file-upload pre {
-  background-color: #1a1a1a;
-  color: #FFFFFF;
-  padding: 10px;
-  border-radius: 4px;
+  background-color: #f8f9fa;
+  color: #495057;
+  padding: 15px;
+  border-radius: 6px;
   overflow-x: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
+  border: 1px solid #e9ecef;
+  font-size: 0.9em;
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import BioIcon from '../components/BioIcon';
 
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -16,7 +17,8 @@ interface Organism {
 // Interfaz para la Cepa
 interface Strain {
   id: number;
-  name: string;
+  strain_name: string;
+  source: string | null;
   organism_id: number;
 }
 
@@ -84,12 +86,16 @@ const formatAnalysisResult = (result: unknown, analysisType: string) => {
   }
 
   // Fallback si no se pudo formatear de forma específica
-  return (
-    <div>
-      <p>Resultados detallados (JSON):</p>
-      <pre>{JSON.stringify(result, null, 2)}</pre>
-    </div>
-  );
+  if (typeof result === 'object' && result !== null) {
+    return (
+      <div>
+        <p>Resultados detallados:</p>
+        <pre>{JSON.stringify(result, null, 2)}</pre>
+      </div>
+    );
+  }
+
+  return <p>Resultados: {String(result)}</p>;
 };
 
 const CepariumPage: React.FC = () => {
@@ -203,22 +209,49 @@ const CepariumPage: React.FC = () => {
     setTaskId(null);
     setTaskStatus(null);
 
-    const formData = new FormData();
-    formData.append("strain_id", String(selectedStrainId));
-    formData.append("file", selectedFile);
-
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/analysis/upload/${selectedAnalysisType}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      setUploadSuccess(response.data.message || "Archivo subido con éxito.");
-      setTaskId(response.data.task_id); // Guardar el ID de la tarea
+      // Si es análisis tipo raw_file, usar endpoint diferente
+      let response;
+      if (selectedAnalysisType === 'raw_file') {
+        // Endpoint para subir archivos sin análisis
+        const rawFormData = new FormData();
+        rawFormData.append("strain_id", String(selectedStrainId));
+        rawFormData.append("file", selectedFile);
+        rawFormData.append("analysis_type", "raw_file");
+
+        response = await axios.post(
+          `${API_BASE_URL}/api/analysis/upload/raw`,
+          rawFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        // Mostrar la URL directa del archivo subido
+        setUploadSuccess(
+          `Archivo subido exitosamente. URL de acceso: ${response.data.file_url}`
+        );
+      } else {
+        // Endpoint para análisis con procesamiento
+        const formData = new FormData();
+        formData.append("strain_id", String(selectedStrainId));
+        formData.append("file", selectedFile);
+
+        response = await axios.post(
+          `${API_BASE_URL}/api/analysis/upload/${selectedAnalysisType}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        // Para análisis con tareas, guardar el ID de la tarea
+        setTaskId(response.data.task_id);
+        setUploadSuccess(response.data.message || "Archivo subido con éxito.");
+      }
     } catch (error) {
       const errorMessage =
         axios.isAxiosError(error) && error.response
@@ -232,11 +265,15 @@ const CepariumPage: React.FC = () => {
   };
 
   return (
-    <div className="ceparium-page">
-      <h1>Página Ceparium</h1>
+    <div className="ceparium-page bioinformatics-theme fade-in-up">
+      <h1 className="bioinformatics-card-title">
+        <BioIcon type="dna" className="sidebar-icon" pulse is3d /> Página Ceparium <BioIcon type="microscope" className="sidebar-icon" spin is3d />
+      </h1>
 
-      <section className="data-visualization">
-        <h2>Visualización de Organismos</h2>
+      <div className="bioinformatics-card">
+        <h2>
+          <BioIcon type="vial" className="sidebar-icon" /> Visualización de Organismos
+        </h2>
         {loadingOrganisms ? (
           <p>Cargando organismos...</p>
         ) : errorOrganisms ? (
@@ -257,11 +294,13 @@ const CepariumPage: React.FC = () => {
             ))}
           </ul>
         )}
-      </section>
+      </div>
 
-      <section className="file-upload">
-        <h2>Carga de Archivos</h2>
-        <div>
+      <div className="bioinformatics-card">
+        <h2>
+          <BioIcon type="upload" className="sidebar-icon" pulse /> Carga de Archivos
+        </h2>
+        <div className="form-group">
           <label htmlFor="strain-select">Seleccionar Cepa:</label>
           {loadingStrains ? (
             <p>Cargando cepas...</p>
@@ -278,14 +317,14 @@ const CepariumPage: React.FC = () => {
               <option value="">-- Selecciona una Cepa --</option>
               {strains.map((strain) => (
                 <option key={strain.id} value={strain.id}>
-                  {strain.name} (Organismo: {strain.organism_id})
+                  {strain.strain_name} (Organismo: {strain.organism_id})
                 </option>
               ))}
             </select>
           )}
         </div>
 
-        <div className="upload-section">
+        <div className="form-group upload-section">
           <label htmlFor="analysis-type-select">Tipo de Análisis:</label>
           <select
             id="analysis-type-select"
@@ -293,21 +332,24 @@ const CepariumPage: React.FC = () => {
             onChange={(e) => setSelectedAnalysisType(e.target.value)}
             className="form-control"
           >
-            <option value="fasta_count">FASTA Count</option>
-            <option value="fasta_gc_content">FASTA GC Content</option>
-            <option value="fastq_stats">FASTQ Stats</option>
-            <option value="genbank_stats">GenBank Stats</option>
-            <option value="gff_stats">GFF Stats</option>
+            <option value="fasta_count">Conteo FASTA</option>
+            <option value="fasta_gc_content">Contenido GC FASTA</option>
+            <option value="fastq_stats">Estadísticas FASTQ</option>
+            <option value="genbank_stats">Estadísticas GenBank</option>
+            <option value="gff_stats">Estadísticas GFF</option>
+            <option value="raw_file">Subir archivo sin análisis</option>
           </select>
         </div>
 
-        <div className="upload-section">
-          <input type="file" onChange={handleFileChange} className="form-control" />
+        <div className="form-group upload-section">
+          <label htmlFor="file-upload">Seleccionar Archivo:</label>
+          <input id="file-upload" type="file" onChange={handleFileChange} className="form-control" />
           <button
             onClick={handleFileUpload}
             disabled={!selectedFile || !selectedStrainId || uploading}
             className="button-primary"
           >
+            <BioIcon type="upload" className="sidebar-icon" spin={uploading} />{' '}
             {uploading ? "Subiendo..." : "Subir Archivo"}
           </button>
         </div>
@@ -315,36 +357,50 @@ const CepariumPage: React.FC = () => {
         {selectedFile && <p>Archivo seleccionado: {selectedFile.name}</p>}
         {uploading && <p>Cargando archivo...</p>}
         {uploadError && <p className="error-message">{uploadError}</p>}
-        {uploadSuccess && <p className="success-message">{uploadSuccess}</p>}
-
-        {taskId && (
-          <div className="analysis-status">
-            <h3>Estado de la Tarea de Análisis (ID: {taskId})</h3>
-            {taskStatus ? (
-              <div>
-                <p>Estado: {taskStatus.status}</p>
-                {taskStatus.progress !== undefined && (
-                  <p>Progreso: {taskStatus.progress}%</p>
-                )}
-                {taskStatus.state === "SUCCESS" && taskStatus.result && (
-                  <div className="analysis-results">
-                    <h4>Resultados:</h4>
-                    {formatAnalysisResult(
-                      taskStatus.result,
-                      selectedAnalysisType
-                    )}
-                  </div>
-                )}
-                {taskStatus.state === "FAILURE" && (
-                  <p className="task-error">Error: {taskStatus.error}</p>
-                )}
-              </div>
-            ) : (
-              <p>Esperando el estado de la tarea...</p>
+        {uploadSuccess && (
+          <div className="success-message">
+            <p>{uploadSuccess}</p>
+            {selectedAnalysisType === 'raw_file' && (
+              <p className="info-message">
+                El archivo ha sido subido directamente a MinIO sin procesamiento.
+                La URL proporcionada te permite acceder directamente al archivo.
+              </p>
             )}
           </div>
         )}
-      </section>
+      </div>
+
+      {taskId && (
+        <div className="bioinformatics-card analysis-status">
+          <h2>
+            <BioIcon type="chart" className="sidebar-icon" spin /> Estado de la Tarea de Análisis (ID: {taskId})
+          </h2>
+          {taskStatus ? (
+            <div>
+              <p>Estado: {taskStatus.status}</p>
+              {taskStatus.progress !== undefined && (
+                <p>Progreso: {taskStatus.progress}%</p>
+              )}
+              {taskStatus.state === "SUCCESS" && taskStatus.result && (
+                <div className="analysis-results">
+                  <h3>
+                    <BioIcon type="download" className="sidebar-icon" pulse /> Resultados:
+                  </h3>
+                  {formatAnalysisResult(
+                    taskStatus.result,
+                    selectedAnalysisType
+                  )}
+                </div>
+              )}
+              {taskStatus.state === "FAILURE" && (
+                <p className="task-error">Error: {taskStatus.error}</p>
+              )}
+            </div>
+          ) : (
+            <p>Esperando el estado de la tarea...</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

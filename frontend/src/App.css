@@ -6,7 +6,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #ffffff;1
+  background-color: #f8f9fa; /* Fondo claro con tonos cálidos que representan la bioinformática */
+  color: #495057; /* Texto gris oscuro para buena legibilidad */
 }
 
 .App {
@@ -22,13 +23,17 @@ body {
   z-index: 1100; /* Asegura que esté por encima del sidebar */
   background-color: #f8f9fa;
   border: 1px solid #dee2e6;
-  border-radius: 5px;
+  border-radius: 8px;
   padding: 8px 12px;
   cursor: pointer;
+  background-color: #14b62a;
+  color: white;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .menu-button:hover {
-  background-color: #e9ecef;
+  background-color: #119c24;
+  transform: translateY(-2px);
 }
 
 /* Contenido Principal */
@@ -38,6 +43,8 @@ body {
   width: calc(100% - 250px); /* Ocupa el resto del ancho */
   text-align: left;
   transition: margin-left 0.3s ease; /* Transición suave */
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); /* Gradiente sutil que representa la bioinformática */
 }
 
 /* --- Media Queries para Responsividad --- */
@@ -62,7 +69,8 @@ body {
 
 .welcome-page h1 {
   font-size: 2.5rem;
-  color: #343a40;
+  color: #14b62a; /* Verde SENA */
+  margin-bottom: 1rem;
 }
 
 .welcome-page p {
@@ -76,13 +84,14 @@ button, .button {
   border: none;
   padding: 10px 20px;
   margin: 5px;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
   text-decoration: none;
   text-align: center;
-  transition: background-color 0.2s, box-shadow 0.2s;
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 button.button-primary, .button-primary {
@@ -92,7 +101,8 @@ button.button-primary, .button-primary {
 
 button.button-primary:hover, .button-primary:hover {
   background-color: #119c24; /* Un poco más oscuro para el hover */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(20, 182, 42, 0.3);
+  transform: translateY(-2px);
 }
 
 button.button-secondary, .button-secondary {
@@ -102,6 +112,7 @@ button.button-secondary, .button-secondary {
 
 button.button-secondary:hover, .button-secondary:hover {
   background-color: #5a6268;
+  transform: translateY(-2px);
 }
 
 button:disabled, .button:disabled {
@@ -117,7 +128,8 @@ button.button-danger, .button-danger {
 
 button.button-danger:hover, .button-danger:hover {
   background-color: #c82333; /* Rojo más oscuro */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+  transform: translateY(-2px);
 }
 
 /* Estilos de Formularios */
@@ -126,8 +138,9 @@ form {
   margin: 2rem 0; /* Ajustado para que no se centre en la página */
   padding: 2rem;
   border: 1px solid #dee2e6;
-  border-radius: 8px;
-  background-color: #f8f9fa;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 form .form-group {
@@ -137,7 +150,7 @@ form .form-group {
 form label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #495057;
 }
 
@@ -147,18 +160,21 @@ form select {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ced4da;
-  border-radius: 4px;
+  border-radius: 8px;
   box-sizing: border-box; /* Para que el padding no afecte el ancho total */
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 form input:focus {
   border-color: #14b62a;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(20, 182, 42, 0.25);
+  box-shadow: 0 0 0 3px rgba(20, 182, 42, 0.15);
 }
 
 .form-actions {
   margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* Estilos para Listas de Datos (Tablas) */
@@ -174,16 +190,24 @@ form input:focus {
   align-items: center;
   padding: 1rem;
   border: 1px solid #dee2e6;
-  border-radius: 8px;
-  background-color: #f8f9fa;
+  border-radius: 12px;
+  background-color: #ffffff;
   margin-bottom: 1rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.data-list-item:hover {
+  box-shadow: 0 4px 12px rgba(20, 182, 42, 0.1);
+  transform: translateY(-2px);
 }
 
 .data-list-item a {
   text-decoration: none;
   color: #212529;
   font-weight: 500;
+  flex-grow: 1;
+  padding-right: 1rem;
 }
 
 .data-list-item a:hover {
@@ -193,6 +217,7 @@ form input:focus {
 .data-list-item-actions {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
 }
 
 /* En pantallas pequeñas, apilar los botones verticalmente si es necesario */
@@ -204,5 +229,221 @@ form input:focus {
 
   .data-list-item-actions {
     margin-top: 0.75rem;
+    width: 100%;
+    justify-content: flex-end;
   }
+}
+
+/* Estilos para animaciones sutiles */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Estilos para representar la bioinformática con un toque moderno */
+.bioinformatics-theme {
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); /* Gradiente verde suave */
+}
+
+.bioinformatics-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(20, 182, 42, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #14b62a;
+  transition: all 0.3s ease;
+}
+
+.bioinformatics-card:hover {
+  box-shadow: 0 8px 25px rgba(20, 182, 42, 0.15);
+  transform: translateY(-3px);
+}
+
+/* Estilos para gráficos y visualizaciones */
+.chart-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Estilo para tooltips modernos */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 120px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Estilos para la página de inicio */
+.welcome-title {
+  font-size: 2.5rem;
+  color: #14b62a;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.welcome-subtitle {
+  font-size: 1.5rem;
+  color: #6c757d;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.welcome-description {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #495057;
+  margin-bottom: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(20, 182, 42, 0.15);
+}
+
+.stat-icon {
+  margin-right: 1rem;
+}
+
+.stat-icon .sidebar-icon {
+  font-size: 2.5rem;
+  color: #14b62a;
+}
+
+.stat-content h3 {
+  margin: 0 0 0.5rem 0;
+  color: #495057;
+  font-size: 1.2rem;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #14b62a;
+  margin: 0.5rem 0;
+  text-align: center;
+}
+
+.stat-link {
+  display: inline-block;
+  color: #14b62a;
+  text-decoration: none;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  transition: color 0.2s;
+}
+
+.stat-link:hover {
+  color: #119c24;
+  text-decoration: underline;
+}
+
+.quick-actions {
+  margin-top: 2rem;
+}
+
+.quick-actions h2 {
+  color: #495057;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.action-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 1.5rem;
+  text-align: center;
+  text-decoration: none;
+  color: #212529;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.action-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(20, 182, 42, 0.15);
+  color: #212529;
+}
+
+.action-card .sidebar-icon {
+  font-size: 3rem;
+  color: #14b62a;
+  margin-bottom: 1rem;
+}
+
+.action-card h3 {
+  margin: 0 0 1rem 0;
+  color: #495057;
+  font-size: 1.4rem;
+}
+
+.action-card p {
+  margin: 0;
+  color: #6c757d;
+  line-height: 1.5;
 }

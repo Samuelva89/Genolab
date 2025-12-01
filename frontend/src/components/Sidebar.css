@@ -34,7 +34,7 @@
   background: none;
   border: none;
   color: white;
-  font-size: 2rem;
+  font-size: 1.2rem; /* Ajustado para que coincida con el tamaño de texto */
   line-height: 1;
   cursor: pointer;
 }
@@ -50,7 +50,8 @@
 }
 
 .sidebar-nav li a {
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 12px 20px;
   text-decoration: none;
   color: #495057;
@@ -58,15 +59,82 @@
   transition: background-color 0.2s, color 0.2s;
 }
 
+.sidebar-nav li a .sidebar-icon {
+  margin-right: 12px;
+  font-size: 1.2em; /* Ajustado para que coincida con el tamaño de la fuente */
+  width: 1.2em;
+  height: 1.2em;
+  color: #495057; /* Color inicial del icono */
+  transition: color 0.2s ease; /* Transición suave para el cambio de color */
+}
+
 .sidebar-nav li a:hover {
   background-color: #e9ecef;
   color: #14b62a; /* Color SENA */
+}
+
+.sidebar-nav li a:hover .sidebar-icon {
+  color: #14b62a; /* Color SENA para icono al hacer hover */
 }
 
 .sidebar-nav li a.active {
   background-color: #14b62a; /* Color SENA */
   color: white;
   font-weight: bold;
+}
+
+.sidebar-nav li a.active .sidebar-icon {
+  color: white;
+}
+
+/* Colores específicos por icono */
+.sidebar-nav li:nth-child(1) a .sidebar-icon {
+  color: #6c757d; /* Gris para Inicio */
+}
+
+.sidebar-nav li:nth-child(1) a:hover .sidebar-icon {
+  color: #14b62a; /* Color SENA al hacer hover */
+}
+
+.sidebar-nav li:nth-child(2) a .sidebar-icon {
+  color: #dc3545; /* Rojo para Ceparium */
+}
+
+.sidebar-nav li:nth-child(2) a:hover .sidebar-icon {
+  color: #14b62a; /* Color SENA al hacer hover */
+}
+
+.sidebar-nav li:nth-child(3) a .sidebar-icon {
+  color: #28a745; /* Verde para Organismos */
+}
+
+.sidebar-nav li:nth-child(3) a:hover .sidebar-icon {
+  color: #14b62a; /* Color SENA al hacer hover */
+}
+
+.sidebar-nav li:nth-child(4) a .sidebar-icon {
+  color: #007bff; /* Azul para Crear Organismo */
+}
+
+.sidebar-nav li:nth-child(4) a:hover .sidebar-icon {
+  color: #14b62a; /* Color SENA al hacer hover */
+}
+
+/* Colores específicos en estado activo */
+.sidebar-nav li:nth-child(1) a.active .sidebar-icon {
+  color: white;
+}
+
+.sidebar-nav li:nth-child(2) a.active .sidebar-icon {
+  color: white;
+}
+
+.sidebar-nav li:nth-child(3) a.active .sidebar-icon {
+  color: white;
+}
+
+.sidebar-nav li:nth-child(4) a.active .sidebar-icon {
+  color: white;
 }
 
 /* --- Media Queries para Responsividad --- */

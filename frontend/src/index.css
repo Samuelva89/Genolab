@@ -4,8 +4,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: #E0E0E0; /* Texto principal en blanco suave */
-  background-color: #263238; /* Fondo principal en gris-azulado oscuro */
+  color: #495057; /* Texto principal en gris oscuro para buena legibilidad */
+  background-color: #f8f9fa; /* Fondo claro con tonos cálidos que representan la bioinformática */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -19,6 +19,13 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa;
+  color: #495057;
 }
 
 #root {
@@ -29,11 +36,10 @@ body {
   width: 100%; /* Asegurar que ocupe todo el ancho disponible */
 }
 
-
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-  color: #84BD00; /* Títulos en Verde SENA */
+  color: #14b62a; /* Verde SENA */
 }
 
 button {
@@ -43,23 +49,23 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #263238; /* Botones por defecto en gris-azulado oscuro */
-  color: #E0E0E0; /* Texto de botón en blanco suave */
+  background-color: #f8f9fa;
+  color: #495057;
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #00BCD4; /* Borde Bio Blue/Cyan al pasar el ratón */
+  border-color: #14b62a; /* Verde SENA al pasar el ratón */
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto #00BCD4; /* Contorno de enfoque en Bio Blue/Cyan */
+  outline: 4px auto #14b62a; /* Contorno de enfoque en Verde SENA */
 }
 
 /* Primary button styles for institutional green */
 .button-primary {
-  background-color: #84BD00; /* Verde SENA */
-  color: #000000;
+  background-color: #14b62a; /* Verde SENA */
+  color: white;
   border: none;
   padding: 0.6em 1.2em; /* Consistent with default button padding */
   border-radius: 8px; /* Consistent with default button border-radius */
@@ -68,14 +74,66 @@ button:focus-visible {
 }
 
 .button-primary:hover {
-  background-color: #72a500; /* Un poco más oscuro para el hover */
+  background-color: #119c24; /* Un poco más oscuro para el hover */
   color: #FFFFFF;
 }
 
 .button-primary:disabled {
-  background-color: #555555;
-  color: #cccccc;
+  background-color: #ced4da;
+  color: #6c757d;
   cursor: not-allowed;
+}
+
+/* Secondary button */
+.button-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.6em 1.2em;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button-secondary:hover {
+  background-color: #5a6268;
+  color: #FFFFFF;
+}
+
+/* Danger button */
+.button-danger {
+  background-color: #dc3545; /* Rojo */
+  color: white;
+  border: none;
+  padding: 0.6em 1.2em;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button-danger:hover {
+  background-color: #c82333; /* Rojo más oscuro */
+  color: #FFFFFF;
+}
+
+/* Error message */
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+}
+
+/* Success message */
+.success-message {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin: 0.5rem 0;
 }
 
 /* Redefinir #root styles, o ajustarlos si ya fueron movidos */

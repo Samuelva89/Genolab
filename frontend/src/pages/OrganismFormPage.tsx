@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import BioIcon from '../components/BioIcon';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -59,80 +60,106 @@ const OrganismFormPage: React.FC = () => {
     try {
       if (isEditing) {
         await axios.put(`${API_BASE_URL}/api/ceparium/organisms/${organismId}`, formData);
-        setSuccess('Organismo actualizado exitosamente.');
       } else {
         await axios.post(`${API_BASE_URL}/api/ceparium/organisms/`, formData);
-        setSuccess('Organismo creado exitosamente.');
       }
-      // Esperar un poco para que el usuario vea el mensaje antes de redirigir
-      setTimeout(() => {
-        navigate('/ceparium/organisms');
-      }, 1500);
+      // Limpiar el formulario después de guardar exitosamente
+      setFormData({ name: '', genus: '', species: '' });
+      // Navegar directamente sin usar setTimeout para evitar conflictos
+      navigate('/ceparium/organisms');
     } catch (err) {
       setError('Error al guardar el organismo.');
       console.error('Error saving organism:', err);
-      setIsSubmitting(false); // Reactivar el botón si hay un error
+    } finally {
+      setIsSubmitting(false);
     }
-    // No reactivar isSubmitting aquí si hay éxito, para evitar doble click antes de redirigir
   };
 
   if (loading) {
-    return <p>Cargando formulario...</p>;
+    return (
+      <div className="bioinformatics-theme">
+        <p>Cargando formulario...</p>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h1>{isEditing ? 'Editar Organismo' : 'Crear Nuevo Organismo'}</h1>
-      
-      <form onSubmit={handleSubmit}>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {success && <p style={{ color: 'green' }}>{success}</p>}
+    <div className="bioinformatics-theme fade-in-up">
+      <div className="bioinformatics-card">
+        <h1>
+          {isEditing ? (
+            <>
+              <BioIcon type="flask" className="sidebar-icon" is3d /> Editar Organismo
+            </>
+          ) : (
+            <>
+              <BioIcon type="vial" className="sidebar-icon" is3d /> Crear Nuevo Organismo
+            </>
+          )}
+        </h1>
 
-        <div className="form-group">
-          <label htmlFor="name">Nombre:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="genus">Género:</label>
-          <input
-            type="text"
-            id="genus"
-            name="genus"
-            value={formData.genus}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="species">Especie:</label>
-          <input
-            type="text"
-            id="species"
-            name="species"
-            value={formData.species}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-        <div className="form-actions">
-          <button type="submit" className="button-primary" disabled={isSubmitting}>
-            {isSubmitting ? 'Guardando...' : (isEditing ? 'Actualizar Organismo' : 'Crear Organismo')}
-          </button>
-          <button type="button" className="button-secondary" onClick={() => navigate('/ceparium/organisms')} disabled={isSubmitting}>
-            Cancelar
-          </button>
-        </div>
-      </form>
+        <form onSubmit={handleSubmit}>
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
+
+          <div className="form-group">
+            <label htmlFor="name">Nombre:</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="genus">Género:</label>
+            <input
+              type="text"
+              id="genus"
+              name="genus"
+              value={formData.genus}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="species">Especie:</label>
+            <input
+              type="text"
+              id="species"
+              name="species"
+              value={formData.species}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="form-actions">
+            <button type="submit" className="button-primary" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <BioIcon type="upload" className="sidebar-icon" spin /> Guardando...
+                </>
+              ) : isEditing ? (
+                <>
+                  <BioIcon type="flask" className="sidebar-icon" is3d /> Actualizar Organismo
+                </>
+              ) : (
+                <>
+                  <BioIcon type="vial" className="sidebar-icon" is3d /> Crear Organismo
+                </>
+              )}
+            </button>
+            <button type="button" className="button-secondary" onClick={() => navigate('/ceparium/organisms')} disabled={isSubmitting}>
+              <BioIcon type="file" className="sidebar-icon" /> Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
