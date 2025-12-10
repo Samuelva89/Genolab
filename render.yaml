@@ -17,8 +17,7 @@ services:
   branch: main
   buildCommand: |
     cd services && \
-    pip install -r requirements.txt && \
-    pip install gunicorn
+    pip install -r requirements.txt
   startCommand: cd services && gunicorn -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT app.main:app
   healthCheckPath: /api/health
   envVars:

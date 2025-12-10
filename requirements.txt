@@ -2,6 +2,7 @@
 fastapi==0.121.1
 uvicorn==0.38.0
 python-multipart==0.0.20
+gunicorn==23.0.0
 
 # Database (SQLAlchemy core and MySQL driver)
 SQLAlchemy==2.0.44
