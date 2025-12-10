@@ -18,7 +18,7 @@ services:
   buildCommand: |
     cd services && \
     pip install -r requirements.txt
-  startCommand: python services/start_server.py
+  startCommand: cd services && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
   healthCheckPath: /api/health
   envVars:
     - key: DEBUG
