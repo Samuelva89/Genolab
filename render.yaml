@@ -15,8 +15,11 @@ services:
   region: frankfurt  # Choose region closest to your users
   plan: starter       # Scale as needed: free -> starter -> standard -> pro
   branch: main
+  # Create runtime.txt to specify Python version
   buildCommand: |
+    echo "python-3.11.10" > runtime.txt && \
     cd services && \
+    pip install --upgrade pip && \
     pip install -r requirements.txt
   startCommand: cd services && python create_db.py && gunicorn wsgi:application -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:$PORT --timeout 120
   healthCheckPath: /api/health
