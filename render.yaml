@@ -21,6 +21,8 @@ services:
   startCommand: cd services && python create_db.py && gunicorn wsgi:application -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:$PORT --timeout 120
   healthCheckPath: /api/health
   envVars:
+    - key: PYTHON_PATH
+      value: /opt/render/project/src/services
     - key: DEBUG
       value: False
     - key: TESTING
