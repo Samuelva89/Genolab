@@ -3,13 +3,49 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.3s ease, color 0.3s ease;
-  color: #14b62a; /* Verde SENA */
   position: relative;
 }
 
+/* Colores específicos por tipo de icono para bioinformática */
+.bio-icon[data-type="dna"] {
+  color: #007BFF; /* Azul del ADN */
+}
+
+.bio-icon[data-type="microscope"] {
+  color: #00BCD4; /* Azul cian para microscopio */
+}
+
+.bio-icon[data-type="vial"] {
+  color: #9C27B0; /* Púrpura para probetas */
+}
+
+.bio-icon[data-type="chart"] {
+  color: #FF6B6B; /* Rojo coral para gráficos */
+}
+
+.bio-icon[data-type="upload"] {
+  color: #FF5722; /* Naranja para subidas */
+}
+
+.bio-icon[data-type="download"] {
+  color: #FF9800; /* Naranja para descargas */
+}
+
+.bio-icon[data-type="flask"] {
+  color: #607D8B; /* Gris acero para matraces */
+}
+
+.bio-icon[data-type="database"] {
+  color: #3F51B5; /* Azul índigo para base de datos */
+}
+
+.bio-icon[data-type="file"] {
+  color: #2196F3; /* Azul para archivos */
+}
+
 .bio-icon:hover {
-  transform: scale(1.1);
-  color: #119c24;
+  transform: scale(1.2);
+  filter: brightness(1.2);
 }
 
 /* 3D Effect Styles */
@@ -43,10 +79,11 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(20, 182, 42, 0.3);
+  background: currentColor;
+  opacity: 0.3;
   transform: rotateY(90deg) translateZ(5px);
   z-index: 5;
-  border-radius: 2px; /* Match the icon's shape if needed */
+  border-radius: 2px;
 }
 
 .bio-icon-3d:hover {

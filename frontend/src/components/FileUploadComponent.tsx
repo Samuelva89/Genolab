@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { uploadFile } from '../services/api';
+import { API_BASE_URL } from '../services/api';
 
 interface FileUploadComponentProps {
   strainId: number;
@@ -51,10 +51,14 @@ const FileUploadComponent: React.FC<FileUploadComponentProps> = ({
       formData.append('strain_id', strainId.toString());
       formData.append('analysis_type', 'raw_file');
 
-      const response = await uploadFile(formData);
+      const response = await axios.post(`${API_BASE_URL}/api/analysis/upload/raw`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       setUploadStatus('success');
-      setUploadMessage(`Archivo subido exitosamente a MinIO. ID de análisis: ${response.analysis_id}`);
+      setUploadMessage(`Archivo subido exitosamente a MinIO. ID de análisis: ${response.data.analysis_id || 'N/A'}`);
 
       if (onUploadSuccess) {
         onUploadSuccess();
@@ -88,7 +92,7 @@ const FileUploadComponent: React.FC<FileUploadComponentProps> = ({
         {selectedFile && (
           <div className="file-info">
             <p>Archivo seleccionado: {selectedFile.name}</p>
-            <p>Tamaño: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+            <p>Tamaño: ${(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
           </div>
         )}
 

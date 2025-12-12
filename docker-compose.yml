@@ -48,6 +48,7 @@ services:
     volumes:
       - ./services:/app
       - ./services/data:/app/data
+      - .:/app/backup_files  # Montar directorio raíz para tener acceso a los archivos de backup
     depends_on:
       redis:
         condition: service_healthy
@@ -84,8 +85,8 @@ services:
       - "8080:8080" # Frontend runs on 8080 in container, exposed on 8080 on host
     environment:
       # Pass the backend API URL to the frontend
-      # 'app' is the service name of the backend in docker-compose network
-      VITE_API_URL: http://app:8000
+      # Since frontend runs in browser, it should access backend via host network
+      VITE_API_URL: http://localhost:8000
     depends_on:
       app:
         condition: service_started # Frontend needs backend to be started to make API calls

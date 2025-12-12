@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import BioIcon from '../components/BioIcon';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import AnalysisChart from '../components/AnalysisChart';
+import AnalysisResultDisplay from '../components/AnalysisResultDisplay';
+import { API_BASE_URL } from '../services/api';
 
 interface Analysis {
   id: number;
@@ -51,7 +52,9 @@ const StrainAnalysisPage: React.FC = () => {
 
         // Fetch analyses for the strain
         const analysesResponse = await axios.get<Analysis[]>(`${API_BASE_URL}/api/analysis/strain/${strainId}`);
-        setAnalyses(analysesResponse.data);
+        // Filtrar solo análisis con datos valiosos (excluir raw_file)
+        const filteredAnalyses = analysesResponse.data.filter(analysis => analysis.analysis_type !== 'raw_file');
+        setAnalyses(filteredAnalyses);
 
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
@@ -134,9 +137,11 @@ const StrainAnalysisPage: React.FC = () => {
                   <h4><strong>Tipo:</strong> {analysis.analysis_type}</h4>
                   <p><strong>Fecha:</strong> {formatDate(analysis.timestamp)}</p>
                   <p><strong>ID:</strong> {analysis.id}</p>
+
+                  {/* Mostrar resultados de forma amigable */}
                   <div className="results-preview">
                     <p><strong>Resultados:</strong></p>
-                    <pre>{JSON.stringify(analysis.results, null, 2)}</pre>
+                    <AnalysisResultDisplay results={analysis.results} analysis_type={analysis.analysis_type} />
                   </div>
                   <div className="data-list-item-actions">
                     <button

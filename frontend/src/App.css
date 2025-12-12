@@ -246,8 +246,70 @@ form input:focus {
   }
 }
 
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-5px);
+  }
+  60% {
+    transform: translateY(-3px);
+  }
+}
+
 .fade-in-up {
   animation: fadeInUp 0.5s ease-out;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+.bounce {
+  animation: bounce 0.8s ease-in-out;
 }
 
 /* Estilos para representar la bioinformática con un toque moderno */
@@ -277,6 +339,90 @@ form input:focus {
   padding: 1.5rem;
   margin: 1.5rem 0;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.analysis-chart-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.analysis-chart-section h3 {
+  color: #14b62a;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.analysis-chart-container {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.analysis-chart-container canvas {
+  max-height: 400px;
+  width: 100% !important;
+}
+
+/* Estilos para la página de análisis centralizados */
+.analysis-charts-section {
+  margin: 2rem 0;
+}
+
+.analysis-type-group {
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.analysis-type-group h3 {
+  color: #14b62a;
+  margin-top: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.analysis-charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.individual-analysis-chart {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.individual-analysis-chart h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #495057;
+  font-size: 1rem;
+}
+
+.analyses-list-section {
+  margin-top: 2rem;
+}
+
+/* Estilos responsivos para gráficas */
+@media (max-width: 768px) {
+  .analysis-charts-container {
+    grid-template-columns: 1fr; /* Una columna en móviles */
+  }
+
+  .individual-analysis-chart {
+    min-width: auto;
+  }
 }
 
 /* Estilo para tooltips modernos */
@@ -446,4 +592,215 @@ form input:focus {
   margin: 0;
   color: #6c757d;
   line-height: 1.5;
+}
+
+/* Estilos para la visualización de resultados de análisis */
+.analysis-results-display {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.result-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  background-color: white;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.result-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+  text-transform: capitalize;
+}
+
+.result-value {
+  color: #212529;
+  word-break: break-word;
+  font-size: 0.9rem;
+}
+
+.result-null {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.result-empty {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
+.result-boolean {
+  font-weight: 500;
+}
+
+.result-boolean-true {
+  color: #28a745;
+}
+
+.result-boolean-false {
+  color: #dc3545;
+}
+
+.result-number {
+  font-weight: 600;
+  color: #14b62a;
+}
+
+.result-string {
+  color: #6f42c1;
+  font-family: monospace;
+  background-color: #f8f9fa;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.85rem;
+}
+
+.result-link {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.result-link:hover {
+  color: #0056b3;
+}
+
+.result-array {
+  font-size: 0.85rem;
+}
+
+.result-array-details {
+  font-size: 0.85rem;
+}
+
+.result-object-details {
+  font-size: 0.85rem;
+}
+
+.result-object-details summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: #14b62a;
+}
+
+.result-object-details pre {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  overflow-x: auto;
+}
+
+/* Mejoras para la visualización de gráficos */
+.analysis-charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.individual-analysis-chart {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.individual-analysis-chart h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #212529;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 0.5rem;
+}
+
+.analysis-chart-container {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.analysis-chart-container canvas {
+  max-height: 400px;
+  width: 100% !important;
+}
+
+.chart-wrapper {
+  height: 350px;
+  width: 100%;
+  min-height: 300px;
+  position: relative;
+}
+
+.chart-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  width: 100%;
+  background-color: #f8f9fa;
+  border: 1px dashed #dee2e6;
+  border-radius: 8px;
+  color: #6c757d;
+  text-align: center;
+  font-style: italic;
+}
+
+.api-status {
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  background-color: #e7f3ff;
+  border: 1px solid #b8daff;
+  border-radius: 4px;
+  color: #004085;
+  font-size: 0.9rem;
+}
+
+.info-message {
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  color: #856404;
+  font-size: 0.9rem;
+}
+
+/* Estilos para móviles */
+@media (max-width: 768px) {
+  .analysis-charts-container {
+    grid-template-columns: 1fr; /* Una columna en móviles */
+  }
+
+  .individual-analysis-chart {
+    padding: 1rem;
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-wrapper {
+    height: 300px;
+  }
 }

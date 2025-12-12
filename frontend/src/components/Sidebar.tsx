@@ -82,15 +82,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <FaChartBar className="sidebar-icon" /> Análisis
             </NavLink>
           </li>
-          <li>
-            <NavLink
-              to="/ceparium/user-analyses"
-              onClick={handleNavLinkClick}
-              className={({ isActive }) => isActive ? 'active' : ''}
-            >
-              <FaChartBar className="sidebar-icon" /> Mis Análisis
-            </NavLink>
-          </li>
         </ul>
       </nav>
     </aside>

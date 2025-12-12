@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import BioIcon from '../components/BioIcon';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import { API_BASE_URL } from '../services/api';
 
 interface StrainCreate {
   strain_name: string;

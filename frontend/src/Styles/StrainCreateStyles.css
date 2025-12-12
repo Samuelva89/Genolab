@@ -1,0 +1,245 @@
+/* Estilos específicos para la página de creación de cepas */
+.strain-create-page {
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.strain-create-card {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(20, 182, 42, 0.15);
+  padding: 2rem;
+  border: 1px solid #e0f0e3;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.strain-create-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #14b62a, #4caf50, #8bc34a);
+  border-radius: 16px 16px 0 0;
+}
+
+.strain-create-card h1 {
+  color: #14b62a;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.strain-create-intro {
+  text-align: center;
+  color: #6c757d;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.organism-selector-container {
+  margin: 2rem 0;
+}
+
+.organism-selector-container .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.organism-selector-container label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.organism-selector-container select {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #ced4da;
+  border-radius: 12px;
+  background-color: #ffffff;
+  color: #495057;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23495057' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2em;
+  padding-right: 3rem;
+}
+
+.organism-selector-container select:focus {
+  border-color: #14b62a;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(20, 182, 42, 0.2);
+}
+
+.organism-selector-container select:hover {
+  border-color: #4caf50;
+}
+
+.organism-selector-container select option {
+  padding: 10px;
+  background-color: #ffffff;
+  color: #495057;
+}
+
+.organism-selector-container select option:hover {
+  background-color: #e8f5e9;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #f5c6cb;
+  margin: 1rem 0;
+  text-align: center;
+  font-weight: 500;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.form-actions .button-primary,
+.form-actions .button-secondary {
+  padding: 14px 30px;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  min-width: 220px;
+}
+
+.form-actions .button-primary {
+  background-color: #14b62a;
+  border: 2px solid #14b62a;
+}
+
+.form-actions .button-primary:hover {
+  background-color: #0faa24;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(20, 182, 42, 0.3);
+}
+
+.form-actions .button-primary:disabled {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.form-actions .button-secondary {
+  background-color: #6c757d;
+  border: 2px solid #6c757d;
+}
+
+.form-actions .button-secondary:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(108, 117, 125, 0.3);
+}
+
+.organism-list-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 1rem;
+  background-color: #f8f9fa;
+}
+
+.organism-list-item {
+  padding: 10px;
+  border-bottom: 1px solid #e9ecef;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.organism-list-item:hover {
+  background-color: #e8f5e9;
+}
+
+.organism-list-item:last-child {
+  border-bottom: none;
+}
+
+.organism-item-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.organism-name {
+  font-weight: 600;
+  color: #495057;
+}
+
+.organism-scientific-name {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.select-organism-btn {
+  background-color: #14b62a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.select-organism-btn:hover {
+  background-color: #119c24;
+}
+
+@media (max-width: 768px) {
+  .strain-create-card {
+    margin: 10px;
+    padding: 1.5rem;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions .button-primary,
+  .form-actions .button-secondary {
+    width: 100%;
+  }
+  
+  .strain-create-card h1 {
+    font-size: 1.5rem;
+  }
+}

@@ -1,60 +1,98 @@
+// La URL base se define prioritariamente por la variable de entorno
+// Si está disponible, se usa siempre independientemente del entorno
+const API_URL_FROM_ENV = import.meta.env.VITE_API_URL;
+
+// Configuración para diferentes entornos
+const config = {
+  development: {
+    apiUrl: API_URL_FROM_ENV || "http://localhost:8000",
+    enableLogging: true,
+    enableMockData: false,
+    debug: true
+  },
+  production: {
+    apiUrl: API_URL_FROM_ENV || "https://api.genolab.example.com", // cambiar por URL real de producción
+    enableLogging: false,
+    enableMockData: false,
+    debug: false
+  },
+  staging: {
+    apiUrl: API_URL_FROM_ENV || "https://staging-api.genolab.example.com", // cambiar por URL real de staging
+    enableLogging: true,
+    enableMockData: false,
+    debug: true
+  }
+};
+
+// Detectar entorno
+const getEnvironment = () => {
+  const env = import.meta.env.MODE || 'development';
+  return env;
+};
+
+// Obtener configuración actual
+const currentEnv = getEnvironment();
+const appConfig = config[currentEnv] || config.development;
+
+// Exportar configuración
+export const API_BASE_URL = appConfig.apiUrl;
+export const ENABLE_LOGGING = appConfig.enableLogging;
+export const ENABLE_MOCK_DATA = appConfig.enableMockData;
+export const IS_DEBUG = appConfig.debug;
+export const ENVIRONMENT = currentEnv;
+
+// Función para loggear (solo en desarrollo o si está habilitado)
+export const log = (...args: any[]) => {
+  if (ENABLE_LOGGING || IS_DEBUG) {
+    console.log('[GENOLAB]', ...args);
+  }
+};
+
+// Función para loggear errores
+export const logError = (...args: any[]) => {
+  console.error('[GENOLAB ERROR]', ...args);
+  // Aquí podrías integrar con servicios de logging como Sentry
+};
+
+// Configuración de axios con interceptores
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+// Configurar axios con tiempo de espera
+axios.defaults.timeout = 30000; // 30 segundos
 
-// Interceptor para añadir token JWT a todas las solicitudes
+// Interceptor de solicitud
 axios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    log('Request:', config.method?.toUpperCase(), config.url);
     return config;
   },
   (error) => {
+    logError('Request error:', error);
     return Promise.reject(error);
   }
 );
 
-// Interceptor para manejar errores de autenticación
+// Interceptor de respuesta
 axios.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    log('Response:', response.status, response.config.url);
+    return response;
+  },
   (error) => {
+    logError('Response error:', error.response?.status, error.response?.data);
+
+    // Manejar errores específicos
     if (error.response?.status === 401) {
-      // Token expirado o inválido, redirigir al login
-      localStorage.removeItem('access_token');
-      window.location.href = '/login'; // O donde sea que manejes el login
+      // Token expirado - redirigir a login si se implementa autenticación
+      console.warn('Sesión expirada - implementar redirección a login');
+    } else if (error.response?.status === 403) {
+      console.warn('Acceso denegado - implementar manejo de permisos');
+    } else if (error.response?.status >= 500) {
+      console.error('Error del servidor - contactar al administrador');
     }
+
     return Promise.reject(error);
   }
 );
 
-// Función para subir archivos a MinIO
-export const uploadFile = async (formData: FormData) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/analysis/upload/raw`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    throw error;
-  }
-};
-
-// Función para obtener la lista de análisis (puedes usarla para listar archivos guardados)
-export const getAnalyses = async (strainId: number) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/api/analysis/strain/${strainId}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching analyses:', error);
-    throw error;
-  }
-};
+export default axios;

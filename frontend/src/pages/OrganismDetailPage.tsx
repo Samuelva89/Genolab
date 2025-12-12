@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import BioIcon from '../components/BioIcon';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import { API_BASE_URL } from '../services/api';
 
 interface Organism {
   id: number;
