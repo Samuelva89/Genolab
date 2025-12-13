@@ -2,20 +2,39 @@
 ##
 ## This file defines the services that will be deployed to Render with MySQL database.
 ## The configuration includes:
+## - Web service for the React frontend
 ## - Web service for the FastAPI backend
 ## - MySQL database for persistent data
 ## - Redis instance for Celery task queue
 ## - Environment variables configuration
 ---
 services:
-  # Main web application service
+  # Frontend service (React + Nginx)
+  - type: web
+    name: genolab-frontend
+    env: docker
+    region: Oregón (Oeste de EE. UU.)
+    plan: starter
+    branch: main
+    dockerfilePath: ./frontend/Dockerfile.prod
+    rootDir: ./frontend
+    buildCommand: npm ci && npm run build
+    startCommand: nginx -g "daemon off;"
+    healthCheckPath: /
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: genolab-api-mysql
+          type: web
+          property: url
+
+  # Backend service (FastAPI)
   - type: web
     name: genolab-api-mysql
     env: python
-    region: Oregón (Oeste de EE. UU.) # Choose region closest to your users
-    plan: starter # Scale as needed: free -> starter -> standard -> pro
+    region: Oregón (Oeste de EE. UU.)
+    plan: starter
     branch: main
-    # Create runtime.txt to specify Python version
     buildCommand: |
       echo "python-3.11.10" > runtime.txt && \
       cd services && \
@@ -30,34 +49,29 @@ services:
         value: False
       - key: TESTING
         value: False
-      # MySQL database configuration - Render will provide these automatically
       - key: SQLALCHEMY_DATABASE_URL
         fromDatabase:
           name: genolab-mysql-db
           property: connectionString
-      # Redis configuration - Render will provide this automatically
       - key: REDIS_URL
         fromService:
           name: genolab-redis
           type: redis
           property: connectionString
-      # MinIO/S3 compatible storage - you'll need to provide these externally
       - key: MINIO_ENDPOINT
-        sync: false # This will be added manually in Render dashboard
+        sync: false
       - key: MINIO_ACCESS_KEY
-        sync: false # This will be added manually in Render dashboard
+        sync: false
       - key: MINIO_SECRET_KEY
-        sync: false # This will be added manually in Render dashboard
+        sync: false
       - key: MINIO_BUCKET_NAME
         value: genolab-bucket
-      # Security settings
       - key: SECRET_KEY
-        sync: false # Generate a secure random key for production
+        sync: false
       - key: ALGORITHM
         value: HS256
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: 30
-      # Application settings
       - key: MAX_UPLOAD_SIZE_MB
         value: 10
       - key: ALLOWED_EXTENSIONS

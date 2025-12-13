@@ -81,15 +81,15 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000
     ports:
-      - "8080:8080" # Frontend runs on 8080 in container, exposed on 8080 on host
+      - "8080:8080"
     environment:
-      # Pass the backend API URL to the frontend
-      # Since frontend runs in browser, it should access backend via host network
       VITE_API_URL: http://localhost:8000
     depends_on:
       app:
-        condition: service_started # Frontend needs backend to be started to make API calls
+        condition: service_started
 
 volumes:
   minio_data:

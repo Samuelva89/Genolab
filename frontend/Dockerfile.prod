@@ -9,14 +9,16 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install dependencies using 'npm ci' for reproducible builds
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy the rest of the application source code
 COPY . .
 
+# Accept build argument for API URL
+ARG VITE_API_URL=https://genolab-api-mysql.onrender.com
+ENV VITE_API_URL=${VITE_API_URL}
+
 # Build the application with production environment variables
-ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
 RUN npm run build
 
 
