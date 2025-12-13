@@ -40,7 +40,7 @@ services:
     env_file:
       - ./services/.env
     environment:
-      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ENDPOINT=http://minio:9001
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin123
       - MINIO_BUCKET_NAME=genolab-bucket
@@ -63,7 +63,7 @@ services:
     env_file:
       - ./services/.env
     environment:
-      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ENDPOINT=http://minio:9001
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin123
       - MINIO_BUCKET_NAME=genolab-bucket

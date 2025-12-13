@@ -1,38 +1,28 @@
 ## Render Deployment Configuration for Genolab with MySQL
 ##
 ## This file defines the services that will be deployed to Render with MySQL database.
-## The configuration includes:
-## - Web service for the React frontend
-## - Web service for the FastAPI backend
-## - MySQL database for persistent data
-## - Redis instance for Celery task queue
-## - Environment variables configuration
 ---
 services:
   # Frontend service (React + Nginx)
   - type: web
     name: genolab-frontend
     env: docker
-    region: Oregón (Oeste de EE. UU.)
+    region: oregón
     plan: starter
     branch: main
     dockerfilePath: ./frontend/Dockerfile.prod
-    rootDir: ./frontend
     buildCommand: npm ci && npm run build
     startCommand: nginx -g "daemon off;"
     healthCheckPath: /
     envVars:
       - key: VITE_API_URL
-        fromService:
-          name: genolab-api-mysql
-          type: web
-          property: url
+        value: https://genolab-api-mysql.onrender.com
 
   # Backend service (FastAPI)
   - type: web
     name: genolab-api-mysql
     env: python
-    region: Oregón (Oeste de EE. UU.)
+    region: oregón
     plan: starter
     branch: main
     buildCommand: |
@@ -40,11 +30,9 @@ services:
       cd services && \
       pip install --upgrade pip && \
       pip install -r requirements.txt
-    startCommand: cd services && python create_db.py && PYTHONPATH=/opt/render/project/src/services:$PYTHONPATH gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:$PORT --timeout 120
+    startCommand: cd services && python create_db.py && gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:$PORT --timeout 120
     healthCheckPath: /api/health
     envVars:
-      - key: PYTHON_PATH
-        value: /opt/render/project/src/services
       - key: DEBUG
         value: False
       - key: TESTING
@@ -56,7 +44,7 @@ services:
       - key: REDIS_URL
         fromService:
           name: genolab-redis
-          type: redis
+          type: pserv
           property: connectionString
       - key: MINIO_ENDPOINT
         sync: false
@@ -81,25 +69,26 @@ services:
   - type: pserv
     name: genolab-mysql-db
     env: mysql
-    region: Oregón (Oeste de EE. UU.)
-    plan: free # Free tier available, upgrade as needed
+    region: oregón
+    plan: free
     diskSizeGB: 10
     databaseName: genolab_db
     user: genolab_user
     envVars:
       - key: MYSQL_ROOT_PASSWORD
-        sync: false # Set securely in Render dashboard
+        sync: false
       - key: MYSQL_DATABASE
         value: genolab_db
       - key: MYSQL_USER
         value: genolab_user
       - key: MYSQL_PASSWORD
-        sync: false # Set securely in Render dashboard
+        sync: false
 
   # Redis service for Celery
   - type: pserv
     name: genolab-redis
     env: redis
-    region: Oregón (Oeste de EE. UU.)
-    plan: free # Free tier available, upgrade as needed
-    maxmemoryPolicy: allkeys-lru # Evict least recently used keys when memory is full
+    region: oregón
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+
