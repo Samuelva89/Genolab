@@ -83,6 +83,13 @@ origins = [
     "http://localhost:5173", # Puerto por defecto de Vite
 ]
 
+# Agregar orígenes de Render en producción
+if os.getenv("DEBUG") == "False" or not testing_mode:
+    origins.extend([
+        "https://genolab-frontend.onrender.com",
+        "https://genolab-api-mysql.onrender.com",
+    ])
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
