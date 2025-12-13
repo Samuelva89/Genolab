@@ -1,9 +1,0 @@
-FROM postgrest/postgrest:latest
-
-# Create a configuration file for PostgREST
-RUN mkdir -p /etc/postgrest
-COPY postgrest.conf /etc/postgrest/
-
-EXPOSE 3000
-
-CMD ["postgrest", "/etc/postgrest/postgrest.conf"]

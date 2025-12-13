@@ -1,143 +1,79 @@
-# Genolab - Genomic Laboratory Management System
+# Despliegue de Genolab en Render con MySQL
 
-Genolab is a comprehensive genomic laboratory management system built with FastAPI, designed to manage organisms, strains, and perform bioinformatics analyses.
+## Configuración del Proyecto
 
-## Deployment Options
+Este archivo explica cómo desplegar Genolab en Render usando MySQL como base de datos.
 
-This repository supports multiple deployment configurations depending on your database preference:
+## Pasos para el Despliegue
 
-### Option 1: MySQL Deployment
-Deploy with MySQL as the primary database.
+1. **Preparar el Repositorio**
+   - Asegúrate de que tu código esté en un repositorio GitHub
+   - El archivo `render.yaml` en la raíz contiene la configuración del servicio
 
-### Option 2: PostgreSQL + PostgREST Deployment  
-Deploy with PostgreSQL database and PostgREST for automatic REST API generation.
+2. **Crear Servicio en Render**
+   - Accede al dashboard de Render
+   - Haz clic en "New +" y selecciona "Web Service"
+   - Conecta tu repositorio GitHub
+   - Usa la rama principal (`main`)
 
-## Technologies Used
+3. **Configuración del Servicio**
+   - Directorio raíz: `services`
+   - Entorno: `Python`
+   - Comando de compilación: se encuentra en el archivo `render.yaml`
+   - Comando de inicio: se encuentra en el archivo `render.yaml`
+   - Ruta de verificación de salud: `/api/health`
 
-- **Backend**: FastAPI (Python 3.11)
-- **Database Options**: MySQL or PostgreSQL
-- **API Layer**: FastAPI + optionally PostgREST
-- **Task Queue**: Celery + Redis
-- **Object Storage**: MinIO (S3-compatible)
-- **Deployment**: Render
+4. **Variables de Entorno**
+   - `MINIO_ENDPOINT`: URL de tu servicio MinIO/S3
+   - `MINIO_ACCESS_KEY`: Clave de acceso
+   - `MINIO_SECRET_KEY`: Clave secreta
+   - `MINIO_BUCKET_NAME`: Nombre del bucket (por defecto: genolab-bucket)
+   - `SECRET_KEY`: Clave secreta JWT (genera una con `openssl rand -hex 32`)
 
-## Deployment to Render
+5. **Configuración de la Base de Datos**
+   - El archivo `render.yaml` crea automáticamente:
+     - Un servicio de base de datos MySQL
+     - Un servicio Redis para Celery
+     - La aplicación FastAPI
 
-### Prerequisites
+## Variables de Entorno Adicionales (Opcionales)
 
-1. A Render account (for institutional use)
-2. Access to external object storage (MinIO/S3 bucket)
-3. Properly configured repository access
+- `DEBUG`: `False` para producción
+- `TESTING`: `False` para producción
+- `MAX_UPLOAD_SIZE_MB`: Tamaño máximo de archivo (por defecto: 10)
+- `ALLOWED_EXTENSIONS`: Extensiones permitidas (por defecto: fasta,fastq,gb,gff,fa,fq)
 
-### MySQL Deployment
+## Seguridad
 
-1. Create a new Web Service on Render
-2. Point to your repository
-3. Update the Blueprint Configuration file to use `mysql_render.yaml`
-4. Configure environment variables (see `.env.render.mysql`)
+- No almacenes credenciales en el código fuente
+- Usa las funciones de variables de entorno encriptadas de Render
+- Genera una clave secreta JWT fuerte para producción
+- Activa autenticación de dos factores para tu cuenta de Render
 
-### PostgreSQL + PostgREST Deployment
+## Solución de Problemas
 
-1. Create a new Web Service on Render
-2. Point to your repository
-3. Update the Blueprint Configuration file to use `postgres_postgrest_render.yaml`
-4. Configure environment variables (see `.env.render.postgres`)
+### Problemas comunes
 
-## Environment Variables Setup
+1. **Fallo en la conexión a la base de datos**
+   - Verifica que el servicio MySQL esté activo
+   - Confirma que las credenciales estén configuradas correctamente
 
-For both deployments, you'll need to configure the following:
+2. **Fallo en carga de archivos**
+   - Verifica las credenciales de MinIO/S3
+   - Confirma que el bucket exista y tenga permisos adecuados
 
-- `SQLALCHEMY_DATABASE_URL`: Database connection string (auto-configured by Render from database service)
-- `REDIS_URL`: Redis connection string (auto-configured by Render from Redis service)
-- `MINIO_ENDPOINT`: MinIO/S3 endpoint URL
-- `MINIO_ACCESS_KEY`: Access key for MinIO/S3
-- `MINIO_SECRET_KEY`: Secret key for MinIO/S3
-- `MINIO_BUCKET_NAME`: Bucket name for file storage
-- `SECRET_KEY`: JWT secret key for authentication
-- `POSTGREST_URL`: (Only for PostgreSQL+PostgREST option) PostgREST API URL
+3. **Fallo en el inicio de la aplicación**
+   - Revisa los logs en el dashboard de Render
+   - Asegúrate de que todas las variables de entorno estén configuradas
 
-## Database Configuration
+## Escalabilidad
 
-### MySQL
-- Database Name: `genolab_db`
-- Username: `genolab_user`
-- Connection handled automatically by Render database service
+- Monitorea el uso de recursos en el dashboard de Render
+- Ajusta el plan del servicio según sea necesario
+- Considera usar CDN para activos estáticos si es necesario
 
-### PostgreSQL with PostgREST
-- Database Name: `genolab_db`
-- Username: `genolab_user`
-- PostgREST provides additional REST API layer
-- JWT authentication configured to match FastAPI
+## Actualizaciones
 
-## File Storage
-
-The application uses MinIO (S3-compatible) for file storage. You can use:
-- Self-hosted MinIO instance
-- AWS S3
-- Google Cloud Storage
-- Any S3-compatible storage service
-
-## API Documentation
-
-Once deployed, API documentation is available at:
-- `/docs` - Interactive API documentation (Swagger UI)
-- `/redoc` - Alternative API documentation (ReDoc)
-
-## Security Features
-
-- JWT-based authentication
-- Rate limiting (60 requests per minute per IP)
-- Secure password hashing with bcrypt
-- Input validation with Pydantic
-- Environment-based configuration
-
-## Architecture
-
-```
-┌─────────────┐    ┌──────────────┐    ┌──────────────┐
-│   Clients   │───▶│  FastAPI App │───▶│  PostgreSQL  │
-│ (Browser,   │    │              │    │    MySQL     │
-│  Mobile)    │    │              │    │    Database  │
-└─────────────┘    └──────────────┘    └──────────────┘
-                          │
-                    ┌─────────────┐
-                    │   Redis     │
-                    │ (Task Queue)│
-                    └─────────────┘
-                          │
-                   ┌──────────────┐
-                   │ MinIO/S3     │
-                   │ (File Storage)│
-                   └──────────────┘
-```
-
-## Development
-
-To run locally for development:
-```bash
-# Clone the repository
-git clone <your-repo-url>
-cd Genolab
-
-# Set up environment variables
-cp services/.env.example services/.env
-# Edit .env with your local configuration
-
-# Install dependencies
-cd services
-pip install -r requirements.txt
-
-# Start the application
-uvicorn app.main:app --reload
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## Support
-
-For institutional deployment support, contact your IT department for Render account setup and configuration assistance.
+- Aplica actualizaciones de seguridad regularmente
+- Prueba actualizaciones en entorno de staging primero
+- Mantiene tu configuración bajo control de versiones

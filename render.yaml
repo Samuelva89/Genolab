@@ -1,16 +1,16 @@
-## Render Deployment Configuration for Genolab
+## Render Deployment Configuration for Genolab with MySQL
 ##
-## This file defines the services that will be deployed to Render.
+## This file defines the services that will be deployed to Render with MySQL database.
 ## The configuration includes:
 ## - Web service for the FastAPI backend
-## - PostgreSQL database for persistent data
+## - MySQL database for persistent data
 ## - Redis instance for Celery task queue
 ## - Environment variables configuration
 ---
 services:
 # Main web application service
 - type: web
-  name: genolab-api
+  name: genolab-api-mysql
   env: python
   region: frankfurt  # Choose region closest to your users
   plan: starter       # Scale as needed: free -> starter -> standard -> pro
@@ -30,10 +30,10 @@ services:
       value: False
     - key: TESTING
       value: False
-    # Database configuration - Render will provide these automatically
+    # MySQL database configuration - Render will provide these automatically
     - key: SQLALCHEMY_DATABASE_URL
       fromDatabase:
-        name: genolab-db
+        name: genolab-mysql-db
         property: connectionString
     # Redis configuration - Render will provide this automatically
     - key: REDIS_URL
@@ -63,19 +63,23 @@ services:
     - key: ALLOWED_EXTENSIONS
       value: fasta,fastq,gb,gff,fa,fq
 
-# Database service
+# MySQL database service
 - type: pserv
-  name: genolab-db
-  env: postgresql
+  name: genolab-mysql-db
+  env: mysql
   region: frankfurt
   plan: free    # Free tier available, upgrade as needed
   diskSizeGB: 10
+  databaseName: genolab_db
+  user: genolab_user
   envVars:
-    - key: POSTGRES_DB
+    - key: MYSQL_ROOT_PASSWORD
+      sync: false  # Set securely in Render dashboard
+    - key: MYSQL_DATABASE
       value: genolab_db
-    - key: POSTGRES_USER
+    - key: MYSQL_USER
       value: genolab_user
-    - key: POSTGRES_PASSWORD
+    - key: MYSQL_PASSWORD
       sync: false  # Set securely in Render dashboard
 
 # Redis service for Celery

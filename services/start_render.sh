@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e  # Exit on any error
 
-echo "Starting Genolab API deployment..."
+echo "Starting Genolab API deployment with MySQL..."
 
 # Change to the services directory
 cd /opt/render/project/src/services
@@ -10,8 +10,8 @@ cd /opt/render/project/src/services
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Wait for services to be ready (especially database)
-echo "Waiting for database to be ready..."
+# Wait for MySQL database to be ready
+echo "Waiting for MySQL database to be ready..."
 python -c "
 import time
 import sys
@@ -26,19 +26,19 @@ while attempt < max_attempts:
         engine = create_engine(settings.SQLALCHEMY_DATABASE_URL)
         with engine.connect() as conn:
             conn.execute('SELECT 1')
-        print('Database connection successful!')
+        print('MySQL database connection successful!')
         break
     except OperationalError as e:
-        print(f'Database not ready, attempt {attempt+1}/{max_attempts}: {e}')
+        print(f'MySQL database not ready, attempt {attempt+1}/{max_attempts}: {e}')
         time.sleep(10)
         attempt += 1
 else:
-    print('Failed to connect to database after max attempts')
+    print('Failed to connect to MySQL database after max attempts')
     sys.exit(1)
 "
 
 # Create/update database tables
-echo "Initializing database tables..."
+echo "Initializing MySQL database tables..."
 python create_db.py
 
 # Start the application server
