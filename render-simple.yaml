@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: genolab
+    env: docker
+    region: oregón
+    plan: starter
+    branch: main
+    dockerfilePath: ./Dockerfile
+    buildCommand: echo "Building..."
+    startCommand: /start.sh
+    healthCheckPath: /health
+    envVars:
+      - key: VITE_API_URL
+        value: /api
+      - key: DEBUG
+        value: False
+      - key: TESTING
+        value: False
+      - key: MINIO_ENDPOINT
+        sync: false
+      - key: MINIO_ACCESS_KEY
+        sync: false
+      - key: MINIO_SECRET_KEY
+        sync: false
+      - key: MINIO_BUCKET_NAME
+        value: genolab-bucket
+      - key: SECRET_KEY
+        sync: false
+      - key: SQLALCHEMY_DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false

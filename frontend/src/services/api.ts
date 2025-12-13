@@ -11,13 +11,13 @@ const config = {
     debug: true
   },
   production: {
-    apiUrl: API_URL_FROM_ENV || "https://api.genolab.example.com", // cambiar por URL real de producción
+    apiUrl: API_URL_FROM_ENV || "/api",
     enableLogging: false,
     enableMockData: false,
     debug: false
   },
   staging: {
-    apiUrl: API_URL_FROM_ENV || "https://staging-api.genolab.example.com", // cambiar por URL real de staging
+    apiUrl: API_URL_FROM_ENV || "/api",
     enableLogging: true,
     enableMockData: false,
     debug: true
