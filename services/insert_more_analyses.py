@@ -41,13 +41,13 @@ def insert_more_sample_analyses():
                 "analysis_type": "fasta_count",
                 "results": {"sequence_count": 5, "filename": "more_sequences.fasta", "upload_status": "completed"},
                 "strain_id": strains[0].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/more_sequences.fasta"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/more_sequences.fasta"
             },
             {
                 "analysis_type": "fasta_count",
                 "results": {"sequence_count": 8, "filename": "many_sequences.fasta", "upload_status": "completed"},
                 "strain_id": strains[1].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/many_sequences.fasta"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/many_sequences.fasta"
             },
             # Más análisis de GC content con diferentes valores
             {
@@ -59,7 +59,7 @@ def insert_more_sample_analyses():
                     "individual_gc_contents": [42.1, 46.8, 47.3, 44.6]
                 },
                 "strain_id": strains[0].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/diverse_gc.fasta"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/diverse_gc.fasta"
             },
             {
                 "analysis_type": "fasta_gc_content",
@@ -70,7 +70,7 @@ def insert_more_sample_analyses():
                     "individual_gc_contents": [65.2, 71.3, 69.6]
                 },
                 "strain_id": strains[2].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/high_gc.fasta"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/high_gc.fasta"
             },
             # Más análisis GFF con diferentes features
             {
@@ -80,7 +80,7 @@ def insert_more_sample_analyses():
                     "feature_counts": {"gene": 5, "mRNA": 5, "exon": 23, "CDS": 18, "intron": 19, "five_prime_UTR": 5, "three_prime_UTR": 5}
                 },
                 "strain_id": strains[1].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/complex_features.gff"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/complex_features.gff"
             },
             {
                 "analysis_type": "gff_stats",
@@ -89,7 +89,7 @@ def insert_more_sample_analyses():
                     "feature_counts": {"gene": 2, "mRNA": 2, "exon": 8, "CDS": 6}
                 },
                 "strain_id": strains[2].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/simple_features.gff"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/simple_features.gff"
             },
             # Análisis FASTQ con estadísticas
             {
@@ -103,7 +103,7 @@ def insert_more_sample_analyses():
                     "overall_avg_quality": 35.2
                 },
                 "strain_id": strains[0].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/quality_sample.fastq"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/quality_sample.fastq"
             },
             # Análisis GenBank con más detalles
             {
@@ -119,7 +119,7 @@ def insert_more_sample_analyses():
                     "topology": "linear"
                 },
                 "strain_id": strains[1].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/detailed_sequence.gbk"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/detailed_sequence.gbk"
             }
         ]
 

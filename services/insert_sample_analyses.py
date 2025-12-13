@@ -38,19 +38,19 @@ def insert_sample_analyses():
                 "analysis_type": "fasta_count",
                 "results": {"sequence_count": 42, "filename": "example.fasta", "upload_status": "completed"},
                 "strain_id": strains[0].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/example.fasta"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/example.fasta"
             },
             {
                 "analysis_type": "fasta_gc_content",
                 "results": {"filename": "example.fasta", "sequence_count": 1, "average_gc_content": 52.3, "individual_gc_contents": [52.3]},
                 "strain_id": strains[1].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/example2.fasta"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/example2.fasta"
             },
             {
                 "analysis_type": "raw_file",
                 "results": {"filename": "raw_sequence.fasta", "file_size": 1024, "upload_status": "completed", "message": "Archivo subido directamente sin análisis"},
                 "strain_id": strains[2].id,
-                "file_url": "http://localhost:9000/genolab-bucket/uploads/raw_sequence.fasta"
+                "file_url": "http://localhost:9001/genolab-bucket/uploads/raw_sequence.fasta"
             }
         ]
 
