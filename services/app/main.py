@@ -84,14 +84,13 @@ origins = [
 ]
 
 # Agregar orígenes de Render en producción
-if os.getenv("DEBUG") == "False" or not testing_mode:
+if os.getenv("DEBUG") == "False" and not testing_mode:
     # Permitir dominios adicionales desde variable de entorno
     additional_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
     if additional_origins:
         origins.extend([origin.strip() for origin in additional_origins.split(",")])
     origins.extend([
         "https://genolab-frontend.onrender.com",
-        "https://genolab-api-mysql.onrender.com",
     ])
 
 app.add_middleware(
