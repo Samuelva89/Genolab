@@ -1,5 +1,5 @@
 # Stage 1: Build Frontend
-FROM node:20-alpine AS frontend-build
+FROM node:20-alpine as frontend-build
 
 WORKDIR /app/frontend
 
@@ -16,7 +16,7 @@ RUN npm run build
 
 
 # Stage 2: Build Backend
-FROM python:3.11-slim AS backend-build
+FROM python:3.11-slim as backend-build
 
 WORKDIR /app/services
 
@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 # Stage 3: Final Runtime
-FROM python:3.11-slim
+FROM python:3.11-slim as production
 
 # Instalar nginx
 RUN apt-get update && apt-get install -y nginx curl && rm -rf /var/lib/apt/lists/*
