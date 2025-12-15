@@ -28,20 +28,12 @@ def get_summary_stats(db: Session = Depends(get_db)):
     - Número total de cepas
     - Número total de análisis
     """
-    try:
-        total_organisms = crud.get_organisms_count(db)
-        total_strains = crud.get_strains_count(db)
-        total_analyses = crud.get_analyses_count(db)
-        
-        return {
-            "totalOrganisms": total_organisms,
-            "totalStrains": total_strains,
-            "totalAnalyses": total_analyses,
-        }
-    except Exception as e:
-        print(f"Error fetching stats: {e}")
-        return {
-            "totalOrganisms": 0,
-            "totalStrains": 0,
-            "totalAnalyses": 0,
-        }
+    total_organisms = crud.get_organisms_count(db)
+    total_strains = crud.get_strains_count(db)
+    total_analyses = crud.get_analyses_count(db)
+    
+    return {
+        "totalOrganisms": total_organisms,
+        "totalStrains": total_strains,
+        "totalAnalyses": total_analyses,
+    }
