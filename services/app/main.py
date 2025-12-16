@@ -78,20 +78,19 @@ app = FastAPI(
 origins = [
     "http://localhost",
     "http://localhost:80",
-    "http://localhost:8080", # Puerto para el frontend en Docker
-    "http://localhost:3000", # Puerto común para desarrollo de frontend
-    "http://localhost:5173", # Puerto por defecto de Vite
+    "http://localhost:8080",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "https://genolab-frontend.onrender.com",
 ]
 
-# Agregar orígenes de Render en producción
-if os.getenv("DEBUG") == "False" and not testing_mode:
-    # Permitir dominios adicionales desde variable de entorno
-    additional_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
-    if additional_origins:
-        origins.extend([origin.strip() for origin in additional_origins.split(",")])
-    origins.extend([
-        "https://genolab-frontend.onrender.com",
-    ])
+# Permitir dominios adicionales desde variable de entorno
+additional_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
+if additional_origins:
+    origins.extend([origin.strip() for origin in additional_origins.split(",")])
+
+print(f"[CORS] Configured origins: {origins}")
+print(f"[CORS] DEBUG={os.getenv('DEBUG')}, TESTING={os.getenv('TESTING')}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -130,7 +129,22 @@ app.include_router(api_router)
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "cors_enabled": True,
+        "debug": os.getenv("DEBUG"),
+        "testing": os.getenv("TESTING"),
+        "allowed_origins": origins
+    }
+
+@app.get("/api/cors-test")
+def cors_test():
+    return {
+        "message": "CORS is working",
+        "origins": origins,
+        "debug": os.getenv("DEBUG"),
+        "testing": os.getenv("TESTING")
+    }
 
 # --- Ruta Raíz ---
 # Esta es la primera ruta que alguien ve cuando visita la URL principal de la API.
