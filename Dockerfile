@@ -51,11 +51,18 @@ COPY services .
 # Exponer puertos
 EXPOSE 8080 8000
 
-# Crear script de inicio
+# Crear script de inicio mejorado
 RUN echo '#!/bin/bash\n\
-nginx &\n\
-sleep 2\n\
-python create_db.py\n\
+echo "Inicializando la base de datos..." && \\\n\
+mkdir -p /app/services && \\\n\
+cd /app/services && \\\n\
+python create_db.py && \\\n\
+echo "Restaurando datos de backup..." && \\\n\
+python restore_data.py restore 2>/dev/null || echo "No se encontraron archivos de backup" && \\\n\
+cd / && \\\n\
+nginx & \\\n\
+sleep 2 && \\\n\
+cd /app/services && \\\n\
 gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app -b 127.0.0.1:8000 --timeout 120\n\
 ' > /start.sh && chmod +x /start.sh
 

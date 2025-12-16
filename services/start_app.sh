@@ -3,6 +3,9 @@
 
 echo "Inicializando la base de datos..."
 
+# Asegurar que el directorio de la base de datos exista
+mkdir -p /app/services
+
 # Copiar archivos de backup desde el directorio de montaje si existen
 if [ -d "/app/backup_files" ]; then
     echo "Copiando archivos de backup..."
@@ -20,4 +23,4 @@ echo "Restaurando datos de backup..."
 python restore_data.py restore
 
 echo "Arrancando la aplicación..."
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:8000 --timeout 120

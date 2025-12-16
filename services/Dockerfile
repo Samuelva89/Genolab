@@ -36,8 +36,10 @@ RUN pip install --no-cache-dir --no-index --find-links=/wheels /wheels/* && rm -
 
 
 
-# Create data directory and set permissions for sqlite
-RUN mkdir -p /app/data
+# Create data and services directories and set permissions for sqlite
+RUN mkdir -p /app/data && \
+    mkdir -p /app/services && \
+    chown -R appuser:app /app
 
 # Change ownership of the app directory
 RUN chown -R appuser:app /app
@@ -45,5 +47,8 @@ RUN chown -R appuser:app /app
 # Switch to the non-root user
 USER appuser
 
+# Copy the start script and make it executable
+COPY --chown=appuser:app start_app.sh /app/start_app.sh
+
 # Set the command to run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "/app/start_app.sh"]

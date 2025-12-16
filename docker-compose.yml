@@ -48,6 +48,7 @@ services:
     volumes:
       - ./services:/app
       - ./services/data:/app/data
+      - sqlite_data:/app/services/genolab.db  # Montaje de base de datos persistente
       - .:/app/backup_files  # Montar directorio raíz para tener acceso a los archivos de backup
     depends_on:
       redis:

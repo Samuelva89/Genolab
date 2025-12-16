@@ -2,13 +2,16 @@ services:
   - type: web
     name: genolab-frontend
     env: docker
-    region: oregón
+    region: oregon
     plan: starter
     branch: main
     dockerfilePath: ./frontend/Dockerfile.prod
-    buildCommand: npm ci && npm run build
+    buildCommand: echo "Building frontend..." && cd frontend && npm ci && npm run build
     startCommand: nginx -g "daemon off;"
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: VITE_API_URL
-        value: https://genolab-api-mysql.onrender.com
+        fromService:
+          name: genolab-api  # Ajustar según el nombre real del servicio backend en Render
+          type: web
+          property: url

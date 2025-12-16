@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
 
 class Settings(BaseSettings):
     """
@@ -28,3 +29,10 @@ class Settings(BaseSettings):
 
 # Create a single, importable instance of the settings
 settings = Settings()
+
+# Ensure SQLite database directory exists when using SQLite
+if settings.SQLALCHEMY_DATABASE_URL.startswith("sqlite:///"):
+    db_path = settings.SQLALCHEMY_DATABASE_URL[10:]  # Remove "sqlite:///"
+    db_dir = os.path.dirname(db_path)
+    if db_dir:  # If there's a directory component
+        os.makedirs(db_dir, exist_ok=True)

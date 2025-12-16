@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e  # Exit on any error
 
-echo "Starting Genolab API deployment with MySQL..."
+echo "Starting Genolab API deployment with SQLite..."
 
 # Change to the services directory
 cd /opt/render/project/src/services
@@ -10,37 +10,22 @@ cd /opt/render/project/src/services
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Wait for MySQL database to be ready
-echo "Waiting for MySQL database to be ready..."
-python -c "
-import time
-import sys
-from sqlalchemy import create_engine
-from sqlalchemy.exc import OperationalError
-from app.core.config import settings
+# For SQLite, ensure the database path exists and is writable
+echo "Ensuring SQLite database directory exists..."
+mkdir -p "$(dirname "$(/opt/render/project/env/bin/python -c "from app.core.config import settings; print(settings.SQLALCHEMY_DATABASE_URL[10:])"))" 2>/dev/null || true
 
-max_attempts = 30
-attempt = 0
-while attempt < max_attempts:
-    try:
-        engine = create_engine(settings.SQLALCHEMY_DATABASE_URL)
-        with engine.connect() as conn:
-            conn.execute('SELECT 1')
-        print('MySQL database connection successful!')
-        break
-    except OperationalError as e:
-        print(f'MySQL database not ready, attempt {attempt+1}/{max_attempts}: {e}')
-        time.sleep(10)
-        attempt += 1
-else:
-    print('Failed to connect to MySQL database after max attempts')
-    sys.exit(1)
-"
-
-# Create/update database tables
-echo "Initializing MySQL database tables..."
+echo "Initializing SQLite database tables..."
 python create_db.py
+
+# Restore data from backup if available
+echo "Checking for backup files to restore..."
+if [ -f "backup_users.json" ] && [ -f "backup_organisms.json" ] && [ -f "backup_strains.json" ] && [ -f "backup_analyses.json" ]; then
+    echo "Restoring data from backup files..."
+    python restore_data.py restore
+else
+    echo "No backup files found to restore."
+fi
 
 # Start the application server
 echo "Starting Genolab API server..."
-exec gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:$PORT --timeout 120 --access-logfile - --error-logfile -
+exec gunicorn -w 2 -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:$PORT --timeout 120 --workers-per-core 1 --access-logfile - --error-logfile -
