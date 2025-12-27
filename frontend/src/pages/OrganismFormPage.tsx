@@ -60,13 +60,16 @@ const OrganismFormPage: React.FC = () => {
     try {
       if (isEditing) {
         await axios.put(`${API_BASE_URL}/api/ceparium/organisms/${organismId}`, formData);
+        setSuccess('Organismo actualizado exitosamente.');
       } else {
         await axios.post(`${API_BASE_URL}/api/ceparium/organisms/`, formData);
+        setSuccess('Organismo creado exitosamente.');
       }
-      // Limpiar el formulario después de guardar exitosamente
-      setFormData({ name: '', genus: '', species: '' });
-      // Navegar directamente sin usar setTimeout para evitar conflictos
-      navigate('/ceparium/organisms');
+
+      // Mostrar mensaje de éxito y redirigir después de un corto tiempo
+      setTimeout(() => {
+        navigate('/ceparium');
+      }, 1500);
     } catch (err) {
       setError('Error al guardar el organismo.');
       console.error('Error saving organism:', err);

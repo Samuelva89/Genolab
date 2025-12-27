@@ -24,7 +24,7 @@ const OrganismListPage: React.FC = () => {
         const response = await axios.get<Organism[]>(`${API_BASE_URL}/api/ceparium/organisms/`);
         setOrganisms(response.data);
       } catch (err) {
-        setError('Error al cargar los organismos.');
+        setError('Error al cargar los microorganismos.');
         console.error('Error fetching organisms:', err);
       } finally {
         setLoading(false);
@@ -38,10 +38,11 @@ const OrganismListPage: React.FC = () => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este organismo? Esta acción es irreversible.')) {
       try {
         await axios.delete(`${API_BASE_URL}/api/ceparium/organisms/${organismId}`);
+        // Actualizar la lista local para reflejar la eliminación inmediatamente
         setOrganisms(organisms.filter((org) => org.id !== organismId));
         setError(null); // Limpiar errores previos si la eliminación fue exitosa
       } catch (err) {
-        setError('Error al eliminar el organismo. Asegúrese de que no tiene cepas asociadas.');
+        setError('Error al eliminar el microorganismo. Asegúrese de que no tiene cepas asociadas.');
         console.error('Error deleting organism:', err);
       }
     }
@@ -49,7 +50,7 @@ const OrganismListPage: React.FC = () => {
 
 
   if (loading) {
-    return <div className="bioinformatics-theme"><p>Cargando organismos...</p></div>;
+    return <div className="bioinformatics-theme"><p>Cargando microorganismos...</p></div>;
   }
 
   if (error) {
@@ -59,16 +60,16 @@ const OrganismListPage: React.FC = () => {
   return (
     <div className="bioinformatics-theme fade-in-up">
       <div className="bioinformatics-card">
-        <h1><BioIcon type="dna" className="sidebar-icon" is3d /> Listado de Organismos</h1>
+        <h1><BioIcon type="dna" className="sidebar-icon" is3d /> Listado de Microorganismos</h1>
         <Link to="/ceparium/organisms/create">
           <button className="button-primary">
-            <BioIcon type="vial" className="sidebar-icon" is3d /> Crear Nuevo Organismo
+            <BioIcon type="vial" className="sidebar-icon" is3d /> Crear Nuevo Microorganismo
           </button>
         </Link>
       </div>
       {organisms.length === 0 ? (
         <div className="bioinformatics-card">
-          <p>No hay organismos registrados.</p>
+          <p>No hay microorganismos registrados.</p>
         </div>
       ) : (
         <div className="bioinformatics-card">

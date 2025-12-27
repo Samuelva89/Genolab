@@ -11,7 +11,8 @@ const config = {
     debug: true
   },
   production: {
-    apiUrl: API_URL_FROM_ENV || "/api",
+    // In Docker environment, API calls should go to /api which will be proxied to the backend service
+    apiUrl: API_URL_FROM_ENV || "",
     enableLogging: false,
     enableMockData: false,
     debug: false

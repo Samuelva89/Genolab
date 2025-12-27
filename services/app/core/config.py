@@ -10,12 +10,21 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_URL: str
 
     # MinIO configuration
+    MINIO_ROOT_USER: str
+    MINIO_ROOT_PASSWORD: str
     MINIO_ENDPOINT: str
     MINIO_ACCESS_KEY: str
     MINIO_SECRET_KEY: str
     MINIO_BUCKET_NAME: str
+    MINIO_USE_S3: str
+    S3_ENDPOINT_URL: str
+    S3_ACCESS_KEY_ID: str
+    S3_SECRET_ACCESS_KEY: str
+    S3_BUCKET_NAME: str
 
-    # Redis configuration for Celery
+    # Redis configuration for Celery (using environment variables from .env)
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
     REDIS_URL: str
 
     # JWT Authentication

@@ -34,7 +34,7 @@ def get_db_task():
         db.close()
 
 @celery_app.task(bind=True)
-def process_fasta_count(self, strain_id: int, owner_id: int, bucket: str, object_key: str, analysis_type_str: str):
+def process_fasta_count(self, analysis_id: int, strain_id: int, owner_id: int, bucket: str, object_key: str, analysis_type_str: str):
     db: Session = next(get_db_task())
 
     try:
@@ -57,23 +57,12 @@ def process_fasta_count(self, strain_id: int, owner_id: int, bucket: str, object
             sequence_count += 1
 
         # 4. Guardado de Resultados
-        analysis_results = {"sequence_count": sequence_count, "filename": filename}
+        analysis_results = {"count": sequence_count}
 
-        # Construir la URL del archivo para guardarla en la BD
-        file_url = f"{settings.MINIO_ENDPOINT}/{bucket}/{object_key}"
+        # Actualizar el análisis existente con los resultados
+        crud.update_analysis_results(db, analysis_id, analysis_results)
 
-        analysis_to_create = schemas.AnalysisCreate(
-            analysis_type=analysis_type_str,
-            results=analysis_results,
-            strain_id=strain_id,
-            file_url=file_url  # Pasamos la URL del archivo
-        )
-
-        created_analysis = crud.create_analysis(
-            db=db, analysis=analysis_to_create, owner_id=owner_id
-        )
-
-        return {"status": "SUCCESS", "analysis_id": created_analysis.id}
+        return analysis_results
     except Exception as e:
         # --- Lógica mejorada para manejar el fallo de la tarea ---
         db_except: Session = SessionLocal() # Nueva sesión para el manejo de errores
@@ -93,15 +82,8 @@ def process_fasta_count(self, strain_id: int, owner_id: int, bucket: str, object
                 "object_key": object_key
             }
 
-            failed_file_url = f"{settings.MINIO_ENDPOINT}/{bucket}/{object_key}" # Reconstruir URL si es posible
-
-            failed_analysis_to_create = schemas.AnalysisCreate(
-                analysis_type=analysis_type_str,
-                results=error_details,
-                strain_id=strain_id,
-                file_url=failed_file_url
-            )
-            crud.create_analysis(db=db_except, analysis=failed_analysis_to_create, owner_id=owner_id)
+            # Actualizar el análisis existente con los detalles del error
+            crud.update_analysis_results(db_except, analysis_id, error_details)
         except Exception as db_e:
             logging.error(f"FATAL: Failed to record Celery task failure in DB for task {self.request.id}: {db_e}", exc_info=True)
         finally:
@@ -110,7 +92,7 @@ def process_fasta_count(self, strain_id: int, owner_id: int, bucket: str, object
         return {"status": "FAILED", "error": str(e), "celery_task_id": self.request.id}
 
 @celery_app.task(bind=True)
-def process_fasta_gc_content(self, strain_id: int, owner_id: int, bucket: str, object_key: str, analysis_type_str: str):
+def process_fasta_gc_content(self, analysis_id: int, strain_id: int, owner_id: int, bucket: str, object_key: str, analysis_type_str: str):
     db: Session = next(get_db_task())
 
     try:
@@ -146,23 +128,13 @@ def process_fasta_gc_content(self, strain_id: int, owner_id: int, bucket: str, o
         avg_gc_content = np.mean(gc_contents) if gc_contents else 0.0
 
         analysis_results = {
-            "filename": filename,
+            "gc_content": round(avg_gc_content / 100, 4),
             "sequence_count": sequence_count,
-            "average_gc_content": round(avg_gc_content, 2),
-            "individual_gc_contents": [round(gc, 2) for gc in gc_contents]
+            "average_gc_content_percent": round(avg_gc_content, 2),
         }
 
-        file_url = f"{settings.MINIO_ENDPOINT}/{bucket}/{object_key}"
-        analysis_to_create = schemas.AnalysisCreate(
-            analysis_type=analysis_type_str,
-            results=analysis_results,
-            strain_id=strain_id,
-            file_url=file_url
-        )
-        created_analysis = crud.create_analysis(
-            db=db, analysis=analysis_to_create, owner_id=owner_id
-        )
-        return {"status": "SUCCESS", "analysis_id": created_analysis.id}
+        crud.update_analysis_results(db, analysis_id, analysis_results)
+        return analysis_results
     except Exception as e:
         # --- Lógica mejorada para manejar el fallo de la tarea ---
         db_except: Session = SessionLocal() # Nueva sesión para el manejo de errores
@@ -182,15 +154,7 @@ def process_fasta_gc_content(self, strain_id: int, owner_id: int, bucket: str, o
                 "object_key": object_key
             }
 
-            failed_file_url = f"{settings.MINIO_ENDPOINT}/{bucket}/{object_key}" # Reconstruir URL si es posible
-
-            failed_analysis_to_create = schemas.AnalysisCreate(
-                analysis_type=analysis_type_str,
-                results=error_details,
-                strain_id=strain_id,
-                file_url=failed_file_url
-            )
-            crud.create_analysis(db=db_except, analysis=failed_analysis_to_create, owner_id=owner_id)
+            crud.update_analysis_results(db_except, analysis_id, error_details)
         except Exception as db_e:
             logging.error(f"FATAL: Failed to record Celery task failure in DB for task {self.request.id}: {db_e}", exc_info=True)
         finally:
@@ -199,7 +163,7 @@ def process_fasta_gc_content(self, strain_id: int, owner_id: int, bucket: str, o
         return {"status": "FAILED", "error": str(e), "celery_task_id": self.request.id}
 
 @celery_app.task(bind=True)
-def process_fastq_stats(self, strain_id: int, owner_id: int, bucket: str, object_key: str, analysis_type_str: str):
+def process_fastq_stats(self, analysis_id: int, strain_id: int, owner_id: int, bucket: str, object_key: str, analysis_type_str: str):
     db: Session = next(get_db_task())
 
     try:
@@ -241,18 +205,8 @@ def process_fastq_stats(self, strain_id: int, owner_id: int, bucket: str, object
             "overall_avg_quality": round(overall_avg_quality, 2)
         }
 
-        file_url = f"{settings.MINIO_ENDPOINT}/{bucket}/{object_key}"
-        analysis_to_create = schemas.AnalysisCreate(
-            analysis_type=analysis_type_str,
-            results=analysis_results,
-            strain_id=strain_id,
-            file_url=file_url
-        )
-
-        created_analysis = crud.create_analysis(
-            db=db, analysis=analysis_to_create, owner_id=owner_id
-        )
-        return {"status": "SUCCESS", "analysis_id": created_analysis.id}
+        crud.update_analysis_results(db, analysis_id, analysis_results)
+        return analysis_results
     except Exception as e:
         # --- Lógica mejorada para manejar el fallo de la tarea ---
         db_except: Session = SessionLocal() # Nueva sesión para el manejo de errores
@@ -272,15 +226,7 @@ def process_fastq_stats(self, strain_id: int, owner_id: int, bucket: str, object
                 "object_key": object_key
             }
 
-            failed_file_url = f"{settings.MINIO_ENDPOINT}/{bucket}/{object_key}" # Reconstruir URL si es posible
-
-            failed_analysis_to_create = schemas.AnalysisCreate(
-                analysis_type=analysis_type_str,
-                results=error_details,
-                strain_id=strain_id,
-                file_url=failed_file_url
-            )
-            crud.create_analysis(db=db_except, analysis=failed_analysis_to_create, owner_id=owner_id)
+            crud.update_analysis_results(db_except, analysis_id, error_details)
         except Exception as db_e:
             logging.error(f"FATAL: Failed to record Celery task failure in DB for task {self.request.id}: {db_e}", exc_info=True)
         finally:
@@ -289,7 +235,7 @@ def process_fastq_stats(self, strain_id: int, owner_id: int, bucket: str, object
         return {"status": "FAILED", "error": str(e), "celery_task_id": self.request.id}
 
 @celery_app.task(bind=True)
-def process_genbank_stats(self, strain_id: int, owner_id: int, bucket: str, object_key: str, analysis_type_str: str):
+def process_genbank_stats(self, analysis_id: int, strain_id: int, owner_id: int, bucket: str, object_key: str, analysis_type_str: str):
     db: Session = next(get_db_task())
 
     try:
@@ -321,18 +267,8 @@ def process_genbank_stats(self, strain_id: int, owner_id: int, bucket: str, obje
             "topology": main_record.annotations.get('topology', 'N/A'),
         }
 
-        file_url = f"{settings.MINIO_ENDPOINT}/{bucket}/{object_key}"
-        analysis_to_create = schemas.AnalysisCreate(
-            analysis_type=analysis_type_str,
-            results=analysis_results,
-            strain_id=strain_id,
-            file_url=file_url
-        )
-
-        created_analysis = crud.create_analysis(
-            db=db, analysis=analysis_to_create, owner_id=owner_id
-        )
-        return {"status": "SUCCESS", "analysis_id": created_analysis.id}
+        crud.update_analysis_results(db, analysis_id, analysis_results)
+        return analysis_results
     except Exception as e:
         # --- Lógica mejorada para manejar el fallo de la tarea ---
         db_except: Session = SessionLocal() # Nueva sesión para el manejo de errores
@@ -352,15 +288,7 @@ def process_genbank_stats(self, strain_id: int, owner_id: int, bucket: str, obje
                 "object_key": object_key
             }
 
-            failed_file_url = f"{settings.MINIO_ENDPOINT}/{bucket}/{object_key}" # Reconstruir URL si es posible
-
-            failed_analysis_to_create = schemas.AnalysisCreate(
-                analysis_type=analysis_type_str,
-                results=error_details,
-                strain_id=strain_id,
-                file_url=failed_file_url
-            )
-            crud.create_analysis(db=db_except, analysis=failed_analysis_to_create, owner_id=owner_id)
+            crud.update_analysis_results(db_except, analysis_id, error_details)
         except Exception as db_e:
             logging.error(f"FATAL: Failed to record Celery task failure in DB for task {self.request.id}: {db_e}", exc_info=True)
         finally:
@@ -385,7 +313,7 @@ def process_features(features, feature_counts=None):
     return feature_counts
 
 @celery_app.task(bind=True)
-def process_gff_stats(self, strain_id: int, owner_id: int, bucket: str, object_key: str, analysis_type_str: str):
+def process_gff_stats(self, analysis_id: int, strain_id: int, owner_id: int, bucket: str, object_key: str, analysis_type_str: str):
     db: Session = next(get_db_task())
 
     try:
@@ -413,18 +341,8 @@ def process_gff_stats(self, strain_id: int, owner_id: int, bucket: str, object_k
             "feature_counts": dict(feature_counts)
         }
 
-        file_url = f"{settings.MINIO_ENDPOINT}/{bucket}/{object_key}"
-        analysis_to_create = schemas.AnalysisCreate(
-            analysis_type=analysis_type_str,
-            results=analysis_results,
-            strain_id=strain_id,
-            file_url=file_url
-        )
-
-        created_analysis = crud.create_analysis(
-            db=db, analysis=analysis_to_create, owner_id=owner_id
-        )
-        return {"status": "SUCCESS", "analysis_id": created_analysis.id}
+        crud.update_analysis_results(db, analysis_id, analysis_results)
+        return analysis_results
     except Exception as e:
         # --- Lógica mejorada para manejar el fallo de la tarea ---
         db_except: Session = SessionLocal() # Nueva sesión para el manejo de errores
@@ -444,15 +362,7 @@ def process_gff_stats(self, strain_id: int, owner_id: int, bucket: str, object_k
                 "object_key": object_key
             }
 
-            failed_file_url = f"{settings.MINIO_ENDPOINT}/{bucket}/{object_key}" # Reconstruir URL si es posible
-
-            failed_analysis_to_create = schemas.AnalysisCreate(
-                analysis_type=analysis_type_str,
-                results=error_details,
-                strain_id=strain_id,
-                file_url=failed_file_url
-            )
-            crud.create_analysis(db=db_except, analysis=failed_analysis_to_create, owner_id=owner_id)
+            crud.update_analysis_results(db_except, analysis_id, error_details)
         except Exception as db_e:
             logging.error(f"FATAL: Failed to record Celery task failure in DB for task {self.request.id}: {db_e}", exc_info=True)
         finally:

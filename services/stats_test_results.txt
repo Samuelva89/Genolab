@@ -1,0 +1,6 @@
+Testing stats functions...
+Database URL: sqlite:///data/genolab.db
+Total organisms: 6
+Total strains: 4
+Total analyses: 12
+Database count functions work correctly!

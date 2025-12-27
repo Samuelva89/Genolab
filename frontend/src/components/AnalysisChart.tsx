@@ -178,7 +178,7 @@ const AnalysisChart: React.FC<AnalysisChartProps> = ({ analysisType, results }) 
     const featureCounts = results.feature_counts;
     const labels = Object.keys(featureCounts);
     const dataValues = Object.values(featureCounts).map(v => 
-      typeof v === 'number' ? v : parseInt(v) || 0
+      typeof v === 'number' ? v : parseInt("v") || 0
     );
 
     const data = {

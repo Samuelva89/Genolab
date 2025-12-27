@@ -49,7 +49,7 @@ const AnalysisListPage: React.FC = () => {
     const fetchAnalyses = async () => {
       try {
         // Intentamos obtener análisis de cepas
-        const strainsResponse = await axios.get<Strain[]>(`${API_BASE_URL}/api/ceparium/strains/`);
+        const strainsResponse = await axios.get<Strain[]>(`${API_BASE_URL}/api/ceparium/strains-with-organisms`);
         const allStrains = strainsResponse.data;
 
         const allAnalyses: Analysis[] = [];

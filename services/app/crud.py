@@ -1,5 +1,5 @@
 # Importaciones necesarias
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from . import models, schemas
 
 
@@ -118,6 +118,10 @@ def get_strains(db: Session, skip: int = 0, limit: int = 100):
     """Devuelve una lista de cepas."""
     return db.query(models.Strain).offset(skip).limit(limit).all()
 
+def get_strains_with_organisms(db: Session, skip: int = 0, limit: int = 1000):
+    """Devuelve una lista de cepas con la información del organismo."""
+    return db.query(models.Strain).options(joinedload(models.Strain.organism)).offset(skip).limit(limit).all()
+
 def get_strain(db: Session, strain_id: int):
     """Devuelve una cepa por su ID."""
     return db.query(models.Strain).filter(models.Strain.id == strain_id).first()
@@ -152,6 +156,16 @@ def get_analyses_by_strain(db: Session, strain_id: int, skip: int = 0, limit: in
     Devuelve una lista de análisis para una cepa específica.
     """
     return db.query(models.Analysis).filter(models.Analysis.strain_id == strain_id).offset(skip).limit(limit).all()
+
+def update_analysis_results(db: Session, analysis_id: int, new_results: dict):
+    """Actualiza el campo 'results' de un análisis existente."""
+    db_analysis = db.query(models.Analysis).filter(models.Analysis.id == analysis_id).first()
+    if db_analysis:
+        db_analysis.results = new_results
+        db.commit()
+        db.refresh(db_analysis)
+    return db_analysis
+
 
 # --- Funciones de Conteo para Estadísticas ---
 

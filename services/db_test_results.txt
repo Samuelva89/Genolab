@@ -1,0 +1,9 @@
+Python path: D:\Genolab\services
+Current working directory: D:\Genolab\services
+Config imported successfully
+Database URL: sqlite:///data/genolab.db
+Database imported successfully
+Models imported successfully
+Database session created successfully
+User count: 1
+Database query executed successfully

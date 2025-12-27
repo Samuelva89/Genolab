@@ -17,7 +17,7 @@ from app.core.config import settings
 
 def check_database_exists():
     """Verifica si la base de datos existe y tiene datos"""
-    db_path = Path("services", "genolab.db")
+    db_path = Path("data", "genolab.db")
     if not db_path.exists():
         print("Base de datos no encontrada")
         return False

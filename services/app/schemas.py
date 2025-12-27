@@ -69,13 +69,14 @@ class Analysis(AnalysisBase):
     owner_id: int
     strain_id: int
     timestamp: datetime
+    organism_id: Optional[int] = None
     model_config = {"from_attributes": True}
 
 class Strain(StrainBase):
     id: int
-    organism_id: int
+    organism_id: Optional[int] = None
     # Usamos el esquema simple OrganismInDB para evitar el bucle de recursión.
-    organism: OrganismInDB
+    organism: Optional[OrganismInDB] = None
     analyses: List[Analysis] = []
     model_config = {"from_attributes": True}
 

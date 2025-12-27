@@ -30,7 +30,7 @@ class BackupSystem:
             aws_secret_access_key=settings.MINIO_SECRET_KEY,
         )
         self.bucket_name = settings.MINIO_BUCKET_NAME
-        self.db_path = Path("services", "genolab.db")
+        self.db_path = Path("data", "genolab.db")
 
     def create_backup(self, backup_name: str = None) -> str:
         """

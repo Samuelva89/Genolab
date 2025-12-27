@@ -1,0 +1,5 @@
+Testing stats endpoint...
+Status Code: 200
+Response: {"totalOrganisms":6,"totalStrains":4,"totalAnalyses":12}
+SUCCESS: Stats endpoint is working correctly!
+Response JSON: {'totalOrganisms': 6, 'totalStrains': 4, 'totalAnalyses': 12}

@@ -26,7 +26,7 @@ const StrainCreatePage: React.FC = () => {
         const response = await axios.get<Organism[]>(`${API_BASE_URL}/api/ceparium/organisms/`);
         setOrganisms(response.data);
       } catch (err) {
-        setError('Error al cargar los organismos.');
+        setError('Error al cargar los microorganismos.');
         console.error('Error fetching organisms:', err);
       } finally {
         setLoading(false);
@@ -45,7 +45,7 @@ const StrainCreatePage: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="strain-create-page"><p>Cargando organismos...</p></div>;
+    return <div className="strain-create-page"><p>Cargando microorganismos...</p></div>;
   }
 
   if (error && selectedOrganismId === "") {
@@ -63,7 +63,7 @@ const StrainCreatePage: React.FC = () => {
         <div className="organism-selector-container">
           <div className="form-group">
             <label htmlFor="organism-select">
-              <BioIcon type="dna" className="sidebar-icon" /> Seleccionar Organismo:
+              <BioIcon type="dna" className="sidebar-icon" /> Seleccionar Microorganismo:
             </label>
             <select
               id="organism-select"
@@ -71,7 +71,7 @@ const StrainCreatePage: React.FC = () => {
               onChange={(e) => setSelectedOrganismId(e.target.value ? Number(e.target.value) : "")}
               className="form-control"
             >
-              <option value="">-- Selecciona un Organismo --</option>
+              <option value="">-- Selecciona un Microorganismo --</option>
               {organisms.map((organism) => (
                 <option key={organism.id} value={organism.id}>
                   {organism.name} ({organism.genus} {organism.species})

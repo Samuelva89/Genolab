@@ -103,6 +103,30 @@ def read_strain(strain_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Cepa no encontrada.")
     return strain
 
+@router.get("/strains-with-organisms", response_model=List[schemas.Strain])
+def read_strains_with_organisms(db: Session = Depends(get_db)):
+    """
+    Devuelve una lista de todas las cepas con información del organismo.
+    Útil para interfaces de usuario que necesitan mostrar cepa + organismo.
+    """
+    print("[DEBUG] Endpoint /strains-with-organisms fue alcanzado.")
+    try:
+        strains = crud.get_strains_with_organisms(db, skip=0, limit=1000)  # Aumentamos el límite para UI
+        print(f"[DEBUG] Encontradas {len(strains)} cepas.")
+        return strains
+    except Exception as e:
+        print(f"[DEBUG] Error en /strains-with-organisms: {e}")
+        raise HTTPException(status_code=500, detail="Error interno del servidor al obtener cepas.")
+
+@router.get("/strains-by-organism/{organism_id}", response_model=List[schemas.Strain])
+def read_strains_by_organism(organism_id: int, db: Session = Depends(get_db)):
+    """
+    Devuelve una lista de cepas filtradas por organismo específico.
+    Útil para interfaces de usuario que necesitan mostrar cepas por organismo.
+    """
+    strains = crud.get_strains_by_organism(db, organism_id=organism_id)
+    return strains
+
 @router.put("/organisms/{organism_id}", response_model=schemas.Organism)
 def update_organism(
     organism_id: int,

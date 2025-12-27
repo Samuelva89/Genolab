@@ -54,6 +54,7 @@ const StrainFormPage: React.FC = () => {
       await axios.post(`${API_BASE_URL}/api/ceparium/strains/`, formData);
       setSuccess('Cepa creada exitosamente.');
 
+      // Mostrar mensaje de éxito y redirigir después de un corto tiempo
       setTimeout(() => {
         navigate(`/ceparium/organisms/${organismId}`); // Redirigir a la página de detalles del organismo
       }, 1500);

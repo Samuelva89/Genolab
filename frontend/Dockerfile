@@ -1,42 +1,32 @@
-# --- Stage 1: Build Stage ---
-# Use a Node.js image to build the project
-FROM node:20-alpine AS build-stage
+# check=skip=FromAsCasing
+# Stage 1: Build the React application
+FROM node:20-alpine as build
 
-# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to leverage Docker cache
+# Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
 
-# Install dependencies using 'npm ci' for reproducible builds
-RUN npm ci
+# Install dependencies
+RUN npm install
 
 # Copy the rest of the application source code
 COPY . .
 
-# Accept build argument for API URL
-ARG VITE_API_URL=http://localhost:8000
-ENV VITE_API_URL=${VITE_API_URL}
-
-# Build the application
-# This command will generate the 'dist' folder with static assets
+# Build the application for production
 RUN npm run build
 
+# Stage 2: Serve the application with Nginx
+FROM nginx:1.27-alpine
 
-# --- Stage 2: Production Stage ---
-# Use a lightweight Nginx image to serve the static files
-FROM nginx:stable-alpine AS production-stage
+# Copy the build output from the build stage
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy the custom Nginx configuration file created earlier
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy the custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the built static files from the 'build-stage'
-# The source path (/app/dist) is from the previous stage
-# The destination path (/usr/share/nginx/html) is the default Nginx root
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+# Expose port 80
+EXPOSE 80
 
-# Expose the port defined in nginx.conf
-EXPOSE 8080
-
-# The default Nginx image command will start the server, so no CMD is needed
-# CMD ["nginx", "-g", "daemon off;"]
+# Command to start Nginx
+CMD ["nginx", "-g", "daemon off;"]

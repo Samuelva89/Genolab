@@ -71,10 +71,10 @@ const HomePage: React.FC = () => {
             <BioIcon type="dna" className="sidebar-icon is3d" />
           </div>
           <div className="stat-content">
-            <h3>Organismos</h3>
+            <h3>Microorganismos</h3>
             <p className="stat-number">{stats?.totalOrganisms || 0}</p>
             <Link to="/ceparium/organisms" className="stat-link">
-              Ver organismos <BioIcon type="file" className="sidebar-icon" />
+              Ver microorganismos <BioIcon type="file" className="sidebar-icon" />
             </Link>
           </div>
         </div>
@@ -111,7 +111,7 @@ const HomePage: React.FC = () => {
         <div className="actions-grid">
           <Link to="/ceparium/organisms/create" className="action-card">
             <BioIcon type="vial" className="sidebar-icon is3d" />
-            <h3>Crear Organismo</h3>
+            <h3>Crear Microorganismo</h3>
             <p>Agregar un nuevo organismo al sistema</p>
           </Link>
 
@@ -124,7 +124,7 @@ const HomePage: React.FC = () => {
           <Link to="/ceparium/organisms" className="action-card">
             <BioIcon type="microscope" className="sidebar-icon is3d" />
             <h3>Explorar</h3>
-            <p>Ver todos los organismos y cepas</p>
+            <p>Ver todos los microorganismos y cepas</p>
           </Link>
         </div>
       </div>

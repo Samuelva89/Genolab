@@ -25,7 +25,7 @@ def restore_from_backup_json_files(backup_dir: str = "."):
         db_path = settings.SQLALCHEMY_DATABASE_URL[10:]  # Remover "sqlite:///"
     else:
         # Si no es SQLite, usar path predeterminado
-        db_path = os.path.join("services", "genolab.db")
+        db_path = os.path.join("data", "genolab.db")
 
     # Archivos de backup existentes
     backup_files = {
@@ -162,7 +162,7 @@ def restore_from_backup_json_files(backup_dir: str = "."):
 
 def create_backup_json_files():
     """Crea archivos de backup JSON como los existentes"""
-    db_path = os.path.join("services", "genolab.db")
+    db_path = os.path.join("data", "genolab.db")
 
     if not os.path.exists(db_path):
         print(f"No se encontró archivo de base de datos en: {db_path}")
@@ -218,7 +218,7 @@ def create_backup_json_files():
 
 def show_database_summary():
     """Muestra un resumen de la base de datos actual"""
-    db_path = os.path.join("services", "genolab.db")
+    db_path = os.path.join("data", "genolab.db")
 
     if not os.path.exists(db_path):
         print(f"No se encontró archivo de base de datos en: {db_path}")

@@ -19,6 +19,12 @@ interface Strain {
   strain_name: string;
   source: string | null;
   organism_id: number;
+  organism?: {
+    id: number;
+    name: string;
+    genus: string;
+    species: string;
+  };
 }
 
 // Interfaz para el estado de la tarea de Celery
@@ -29,6 +35,47 @@ interface TaskStatus {
   result?: unknown; // Usar unknown es más seguro que any
   error?: string;
 }
+
+// Interfaz para un Análisis guardado
+interface Analysis {
+  id: number;
+  analysis_type: string;
+  results: any;
+  timestamp: string;
+  file_url: string;
+}
+
+// Función auxiliar para traducir las claves de las estadísticas
+const getTranslatedStatKey = (key: string): string => {
+  switch (key) {
+    case 'count': return 'Conteo';
+    case 'total_length': return 'Longitud Total';
+    case 'min_length': return 'Longitud Mínima';
+    case 'max_length': return 'Longitud Máxima';
+    case 'average_length': return 'Longitud Promedio';
+    case 'num_records': return 'Número de Registros';
+    case 'num_features': return 'Número de Características';
+    case 'gc_content': return 'Contenido GC';
+    case 'features': return 'Características';
+    // Agrega más traducciones según sea necesario
+    default: return key.replace(/_/g, " ");
+  }
+};
+
+// Función auxiliar para traducir el estado de la tarea
+const getTranslatedTaskStatus = (status: string): string => {
+  switch (status) {
+    case 'PENDING': return 'Pendiente';
+    case 'RECEIVED': return 'Recibido';
+    case 'STARTED': return 'Iniciado';
+    case 'PROGRESS': return 'En Progreso';
+    case 'SUCCESS': return 'Completado';
+    case 'FAILURE': return 'Fallido';
+    case 'REVOKED': return 'Revocado';
+    case 'RETRY': return 'Reintentando';
+    default: return status;
+  }
+};
 
 // Función auxiliar para formatear los resultados del análisis
 const formatAnalysisResult = (result: unknown, analysisType: string) => {
@@ -48,7 +95,7 @@ const formatAnalysisResult = (result: unknown, analysisType: string) => {
       if ("count" in resultObj && typeof resultObj.count === "number") {
         return (
           <p>
-            Conteo de secuencias FASTA: <strong>{resultObj.count}</strong>
+            {getTranslatedStatKey('count')} de secuencias FASTA: <strong>{resultObj.count}</strong>
           </p>
         );
       }
@@ -60,7 +107,7 @@ const formatAnalysisResult = (result: unknown, analysisType: string) => {
       ) {
         return (
           <p>
-            Contenido GC en FASTA:{" "}
+            {getTranslatedStatKey('gc_content')} en FASTA:{" "}
             <strong>{(resultObj.gc_content * 100).toFixed(2)}%</strong>
           </p>
         );
@@ -74,7 +121,7 @@ const formatAnalysisResult = (result: unknown, analysisType: string) => {
         <ul>
           {Object.entries(resultObj).map(([key, value]) => (
             <li key={key}>
-              {key.replace(/_/g, " ")}: <strong>{String(value)}</strong>
+              {getTranslatedStatKey(key)}: <strong>{String(value)}</strong>
             </li>
           ))}
         </ul>
@@ -116,6 +163,10 @@ const CepariumPage: React.FC = () => {
   const [taskId, setTaskId] = useState<string | null>(null); // Para guardar el ID de la tarea de Celery
   const [taskStatus, setTaskStatus] = useState<TaskStatus | null>(null); // Para guardar el estado de la tarea
 
+  const [savedAnalyses, setSavedAnalyses] = useState<Analysis[]>([]);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [selectedAnalysisResult, setSelectedAnalysisResult] = useState<Analysis | null>(null);
+
   // Fetch Organisms
   useEffect(() => {
     const fetchOrganisms = async () => {
@@ -125,7 +176,7 @@ const CepariumPage: React.FC = () => {
         );
         setOrganisms(response.data);
       } catch (err) {
-        setErrorOrganisms("Error al cargar los organismos.");
+        setErrorOrganisms("Error al cargar los microorganismos.");
         console.error("Error fetching organisms:", err);
       } finally {
         setLoadingOrganisms(false);
@@ -139,9 +190,9 @@ const CepariumPage: React.FC = () => {
   useEffect(() => {
     const fetchStrains = async () => {
       try {
-        // Asumiendo que existe un endpoint para listar todas las cepas
+        // Usar el endpoint que incluye información del organismo
         const response = await axios.get<Strain[]>(
-          `${API_BASE_URL}/api/ceparium/strains/`
+          `${API_BASE_URL}/api/ceparium/strains-with-organisms`
         );
         setStrains(response.data);
       } catch (err) {
@@ -154,6 +205,28 @@ const CepariumPage: React.FC = () => {
 
     fetchStrains();
   }, []);
+
+  // Fetch saved analyses for the selected strain
+  const fetchAnalyses = async (strainId: number | "") => {
+    if (strainId) {
+      setAnalysisError(null);
+      try {
+        const response = await axios.get<Analysis[]>(
+          `${API_BASE_URL}/api/analysis/strain/${strainId}`
+        );
+        setSavedAnalyses(response.data);
+      } catch (err) {
+        setAnalysisError("Error al cargar los análisis guardados.");
+        console.error("Error fetching saved analyses:", err);
+      }
+    } else {
+      setSavedAnalyses([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchAnalyses(selectedStrainId);
+  }, [selectedStrainId]);
 
   // Polling para el estado de la tarea de Celery
   useEffect(() => {
@@ -170,6 +243,10 @@ const CepariumPage: React.FC = () => {
             response.data.state === "FAILURE"
           ) {
             clearInterval(intervalId);
+            // Refresh the list of analyses when the task is done
+            if (selectedStrainId) {
+              fetchAnalyses(selectedStrainId);
+            }
           }
         } catch (err) {
           console.error("Error fetching task status:", err);
@@ -197,7 +274,7 @@ const CepariumPage: React.FC = () => {
       setUploadError("Por favor, selecciona un archivo para subir.");
       return;
     }
-    if (!selectedStrainId) {
+    if (selectedStrainId === "") {
       setUploadError("Por favor, selecciona una cepa.");
       return;
     }
@@ -272,14 +349,14 @@ const CepariumPage: React.FC = () => {
 
         <div className="ceparium-upload-section">
           <h2>
-            <BioIcon type="vial" className="sidebar-icon" /> Visualización de Organismos
+            <BioIcon type="vial" className="sidebar-icon" /> Visualización de Microorganismos
           </h2>
           {loadingOrganisms ? (
-            <p>Cargando organismos...</p>
+            <p>Cargando microorganismos...</p>
           ) : errorOrganisms ? (
             <p className="error-message">{errorOrganisms}</p>
           ) : organisms.length === 0 ? (
-            <p>No hay organismos registrados.</p>
+            <p>No hay microorganismos registrados.</p>
           ) : (
             <ul>
               {organisms.map((organism) => (
@@ -312,14 +389,14 @@ const CepariumPage: React.FC = () => {
               <select
                 id="strain-select"
                 value={selectedStrainId}
-                onChange={(e) => setSelectedStrainId(Number(e.target.value))}
+                onChange={(e) => setSelectedStrainId(e.target.value === "" ? "" : Number(e.target.value))}
                 disabled={strains.length === 0}
                 className="form-control"
               >
                 <option value="">-- Selecciona una Cepa --</option>
                 {strains.map((strain) => (
                   <option key={strain.id} value={strain.id}>
-                    {strain.strain_name} (Organismo: {strain.organism_id})
+                    {strain.strain_name} ({strain.organism ? `${strain.organism.name} (${strain.organism.genus} ${strain.organism.species})` : `Microorganismo ID: ${strain.organism_id}`})
                   </option>
                 ))}
               </select>
@@ -355,7 +432,7 @@ const CepariumPage: React.FC = () => {
           <div className="upload-actions">
             <button
               onClick={handleFileUpload}
-              disabled={!selectedFile || !selectedStrainId || uploading}
+              disabled={!selectedFile || selectedStrainId === "" || uploading}
               className="file-upload-button"
             >
               <BioIcon type="upload" className="sidebar-icon" spin={uploading} />{' '}
@@ -395,7 +472,7 @@ const CepariumPage: React.FC = () => {
             <div className="analysis-status-container">
               {taskStatus ? (
                 <div>
-                  <p>Estado: {taskStatus.status}</p>
+                  <p>Estado: {getTranslatedTaskStatus(taskStatus.status)}</p>
                   {taskStatus.progress !== undefined && (
                     <>
                       <p>Progreso: {taskStatus.progress}%</p>
@@ -428,6 +505,51 @@ const CepariumPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        <div className="ceparium-upload-section">
+          <h2>
+            <BioIcon type="vial" className="sidebar-icon" /> Historial de Análisis para la Cepa Seleccionada
+          </h2>
+          {analysisError && <p className="error-message">{analysisError}</p>}
+          {savedAnalyses.length > 0 ? (
+            <ul className="analysis-history-list">
+              {savedAnalyses.map((analysis) => (
+                <li key={analysis.id} className="analysis-history-item">
+                  <div className="analysis-info">
+                    <strong>Tipo:</strong> {getTranslatedStatKey(analysis.analysis_type)} <br />
+                    <strong>Fecha:</strong> {new Date(analysis.timestamp).toLocaleString()}
+                  </div>
+                  <div className="analysis-actions">
+                    <button onClick={() => setSelectedAnalysisResult(analysis)} className="button-primary">
+                      Ver Resultados
+                    </button>
+                    <a href={`${API_BASE_URL}/api/analysis/${analysis.id}/download`} className="button-secondary" download>
+                      Descargar Archivo
+                    </a>
+                    <a href={`${API_BASE_URL}/api/analysis/${analysis.id}/results/download-txt`} className="button-secondary" download>
+                      Descargar TXT
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay análisis guardados para esta cepa.</p>
+          )}
+        </div>
+
+        {selectedAnalysisResult && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <button className="modal-close-button" onClick={() => setSelectedAnalysisResult(null)}>
+                &times;
+              </button>
+              <h2>Resultados del Análisis (ID: {selectedAnalysisResult.id})</h2>
+              {formatAnalysisResult(selectedAnalysisResult.results, selectedAnalysisResult.analysis_type)}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

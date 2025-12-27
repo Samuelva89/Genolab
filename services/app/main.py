@@ -75,14 +75,23 @@ app = FastAPI(
 )
 
 # Configuración de CORS
-origins = [
-    "http://localhost",
-    "http://localhost:80",
-    "http://localhost:8080",
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "https://genolab-frontend.onrender.com",
-]
+if os.getenv("ENVIRONMENT") == "production":
+    origins = [
+        "https://genolab-frontend.onrender.com",
+        # Añadir aquí otros dominios de producción según sea necesario
+    ]
+else:
+    # Entornos de desarrollo y pruebas
+    origins = [
+        "http://localhost",
+        "http://localhost:80",
+        "http://localhost:8080",
+        "http://localhost:3000",
+        "http://localhost:5173",  # Puerto por defecto de Vite
+        "http://127.0.0.1:5173",  # Alternativa para localhost
+        "http://[::1]:5173",      # IPv6 localhost
+        "https://genolab-frontend.onrender.com",
+    ]
 
 # Permitir dominios adicionales desde variable de entorno
 additional_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
@@ -90,6 +99,7 @@ if additional_origins:
     origins.extend([origin.strip() for origin in additional_origins.split(",")])
 
 print(f"[CORS] Configured origins: {origins}")
+print(f"[CORS] Environment: {os.getenv('ENVIRONMENT', 'development')}")
 print(f"[CORS] DEBUG={os.getenv('DEBUG')}, TESTING={os.getenv('TESTING')}")
 
 app.add_middleware(
@@ -98,6 +108,8 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    # Añadir esta línea para permitir credenciales en desarrollo
+    allow_origin_regex=None,  # Se puede usar para expresiones regulares si es necesario
 )
 
 app.add_middleware(SlowAPIMiddleware)

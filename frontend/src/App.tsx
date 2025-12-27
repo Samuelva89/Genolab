@@ -11,6 +11,7 @@ import AnalysisListPage from './pages/AnalysisListPage';
 import HomePage from './pages/HomePage';
 import StrainCreatePage from './pages/StrainCreatePage';
 import IndividualFileUploadPage from './pages/IndividualFileUploadPage';
+import GenericMinioUploadPage from './pages/GenericMinioUploadPage';
 import Sidebar from './components/Sidebar'; // Importar el nuevo Sidebar
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
             <Route path="/ceparium/strains/:id/analyses" element={<StrainAnalysisPage />} />
             <Route path="/ceparium/analyses" element={<AnalysisListPage />} />
             <Route path="/ceparium/strains/:strainId/upload" element={<IndividualFileUploadPage />} />
+            <Route path="/ceparium/minio-upload" element={<GenericMinioUploadPage />} />
             <Route path="/" element={<HomePage />} />
           </Routes>
         </main>

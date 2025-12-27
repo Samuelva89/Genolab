@@ -108,6 +108,25 @@ const StrainAnalysisPage: React.FC = () => {
     return <div className="bioinformatics-theme"><p>No se pudo cargar la información de la cepa.</p></div>;
   }
 
+  const getTranslatedAnalysisType = (type: string): string => {
+    switch (type) {
+      case 'fasta_count':
+        return 'Conteo FASTA';
+      case 'fasta_gc_content':
+        return 'Contenido GC FASTA';
+      case 'fastq_stats':
+        return 'Estadísticas FASTQ';
+      case 'genbank_stats':
+        return 'Estadísticas GenBank';
+      case 'gff_stats':
+        return 'Estadísticas GFF';
+      case 'raw_file':
+        return 'Archivo Sin Análisis';
+      default:
+        return type;
+    }
+  };
+
   return (
     <div className="bioinformatics-theme fade-in-up">
       <div className="bioinformatics-card">
@@ -119,12 +138,7 @@ const StrainAnalysisPage: React.FC = () => {
         <p><strong>Fuente:</strong> {strain.source || 'N/A'}</p>
         <p><strong>ID de Cepa:</strong> {strain.id}</p>
 
-        {/* Botón para subir archivos individuales */}
-        <div className="data-list-item-actions">
-          <Link to={`/ceparium/strains/${strain.id}/upload`} className="bioinformatics-button">
-            <BioIcon type="upload" className="sidebar-icon" /> Subir archivo individual a MinIO
-          </Link>
-        </div>
+
 
         <h2><BioIcon type="microscope" className="sidebar-icon" is3d /> Análisis Realizados</h2>
         {analyses.length === 0 ? (
@@ -134,7 +148,7 @@ const StrainAnalysisPage: React.FC = () => {
             {analyses.map((analysis) => (
               <li key={analysis.id} className="data-list-item">
                 <div>
-                  <h4><strong>Tipo:</strong> {analysis.analysis_type}</h4>
+                  <h4><strong>Tipo:</strong> {getTranslatedAnalysisType(analysis.analysis_type)}</h4>
                   <p><strong>Fecha:</strong> {formatDate(analysis.timestamp)}</p>
                   <p><strong>ID:</strong> {analysis.id}</p>
 

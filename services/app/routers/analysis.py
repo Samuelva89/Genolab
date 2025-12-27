@@ -45,6 +45,18 @@ def get_analyses_for_strain(
     analyses = crud.get_analyses_by_strain(db, strain_id=strain_id)
     return analyses
 
+@router.get("/analyses", response_model=List[schemas.Analysis])
+def get_all_analyses(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
+    """
+    Devuelve una lista de todos los análisis en el sistema.
+    """
+    analyses = crud.get_analyses(db, skip=skip, limit=limit)
+    return analyses
+
 @router.post("/upload/raw", status_code=status.HTTP_201_CREATED)
 async def upload_raw_file(
     strain_id: int = Form(...),
@@ -59,19 +71,21 @@ async def upload_raw_file(
     if not crud.get_strain(db, strain_id=strain_id):
         raise HTTPException(status_code=404, detail="La cepa especificada no existe.")
 
-    # Validar extensiones permitidas
-    allowed_extensions = ['.fasta', '.fastq', '.gbk', '.gff', '.txt', '.fa', '.fas', '.mfasta', '.fna', '.faa']
+    # Validar extensiones permitidas - usando la misma lista que en validators.py
+    allowed_extensions = {'.fasta', '.fa', '.fna', '.ffn', '.faa', '.frn', '.fastq', '.fq', '.gb', '.gbk', '.genbank', '.gff', '.gff3', '.txt', '.fas', '.mfasta'}
     file_extension = os.path.splitext(file.filename)[1].lower()
 
     if file_extension not in allowed_extensions:
-        raise HTTPException(status_code=400, detail=f"Extensión de archivo no permitida. Extensiones permitidas: {allowed_extensions}")
+        raise HTTPException(status_code=400, detail=f"Extensión de archivo no permitida. Extensiones permitidas: {', '.join(sorted(allowed_extensions))}")
 
     object_key = f"uploads/{uuid.uuid4()}-{file.filename}"
 
     try:
         s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+        # Registrar el error para diagnóstico
+        print(f"[ERROR] Error al subir archivo a MinIO: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO. Asegúrese de que el servicio MinIO esté disponible: {e}")
 
     # Crear registro en la base de datos para hacer seguimiento del archivo
     first_user = db.query(models.User).first()
@@ -122,20 +136,35 @@ async def upload_and_count_fasta(
     try:
         s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+        # Registrar el error para diagnóstico
+        print(f"[ERROR] Error al subir archivo a MinIO: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO. Asegúrese de que el servicio MinIO esté disponible: {e}")
 
+    # Crear un registro de análisis inicial en la base de datos
     first_user = db.query(models.User).first()
     if not first_user:
         raise HTTPException(status_code=500, detail="No hay usuarios en la base de datos para asociar el análisis.")
 
+    file_url = f"{settings.MINIO_ENDPOINT}/{S3_BUCKET_NAME}/{object_key}"
+    initial_analysis = schemas.AnalysisCreate(
+        analysis_type="fasta_count",
+        results={},  # Resultados vacíos inicialmente
+        strain_id=strain_id,
+        file_url=file_url
+    )
+    created_analysis = crud.create_analysis(
+        db=db, analysis=initial_analysis, owner_id=first_user.id
+    )
+
     task = process_fasta_count.delay(
+        analysis_id=created_analysis.id, # Pasa el ID del análisis creado
         strain_id=strain_id,
         owner_id=first_user.id,
         bucket=S3_BUCKET_NAME,
         object_key=object_key,
         analysis_type_str="fasta_count"
     )
-    return {"message": "Análisis de conteo FASTA iniciado", "task_id": task.id}
+    return {"message": "Análisis de conteo FASTA iniciado", "task_id": task.id, "analysis_id": created_analysis.id}
 
 @router.get("/tasks/{task_id}")
 async def get_task_status(task_id: str):
@@ -179,20 +208,34 @@ async def upload_and_analyze_fasta_gc_content(
     try:
         s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+        # Registrar el error para diagnóstico
+        print(f"[ERROR] Error al subir archivo a MinIO: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO. Asegúrese de que el servicio MinIO esté disponible: {e}")
 
     first_user = db.query(models.User).first()
     if not first_user:
         raise HTTPException(status_code=500, detail="No hay usuarios en la base de datos para asociar el análisis.")
 
+    file_url = f"{settings.MINIO_ENDPOINT}/{S3_BUCKET_NAME}/{object_key}"
+    initial_analysis = schemas.AnalysisCreate(
+        analysis_type="fasta_gc_content",
+        results={},  # Resultados vacíos inicialmente
+        strain_id=strain_id,
+        file_url=file_url
+    )
+    created_analysis = crud.create_analysis(
+        db=db, analysis=initial_analysis, owner_id=first_user.id
+    )
+
     task = process_fasta_gc_content.delay(
+        analysis_id=created_analysis.id, # Pasa el ID del análisis creado
         strain_id=strain_id,
         owner_id=first_user.id,
         bucket=S3_BUCKET_NAME,
         object_key=object_key,
         analysis_type_str="fasta_gc_content"
     )
-    return {"message": "Análisis de contenido GC FASTA iniciado", "task_id": task.id}
+    return {"message": "Análisis de contenido GC FASTA iniciado", "task_id": task.id, "analysis_id": created_analysis.id}
 
 @router.post("/upload/fastq_stats", status_code=status.HTTP_202_ACCEPTED)
 async def upload_and_analyze_fastq(
@@ -212,20 +255,34 @@ async def upload_and_analyze_fastq(
     try:
         s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+        # Registrar el error para diagnóstico
+        print(f"[ERROR] Error al subir archivo a MinIO: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO. Asegúrese de que el servicio MinIO esté disponible: {e}")
 
     first_user = db.query(models.User).first()
     if not first_user:
         raise HTTPException(status_code=500, detail="No hay usuarios en la base de datos para asociar el análisis.")
 
+    file_url = f"{settings.MINIO_ENDPOINT}/{S3_BUCKET_NAME}/{object_key}"
+    initial_analysis = schemas.AnalysisCreate(
+        analysis_type="fastq_stats",
+        results={},  # Resultados vacíos inicialmente
+        strain_id=strain_id,
+        file_url=file_url
+    )
+    created_analysis = crud.create_analysis(
+        db=db, analysis=initial_analysis, owner_id=first_user.id
+    )
+
     task = process_fastq_stats.delay(
+        analysis_id=created_analysis.id, # Pasa el ID del análisis creado
         strain_id=strain_id,
         owner_id=first_user.id,
         bucket=S3_BUCKET_NAME,
         object_key=object_key,
         analysis_type_str="fastq_stats"
     )
-    return {"message": "Análisis de estadísticas FASTQ iniciado", "task_id": task.id}
+    return {"message": "Análisis de estadísticas FASTQ iniciado", "task_id": task.id, "analysis_id": created_analysis.id}
 
 @router.post("/upload/genbank_stats", status_code=status.HTTP_202_ACCEPTED)
 async def upload_and_analyze_genbank(
@@ -245,20 +302,34 @@ async def upload_and_analyze_genbank(
     try:
         s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+        # Registrar el error para diagnóstico
+        print(f"[ERROR] Error al subir archivo a MinIO: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO. Asegúrese de que el servicio MinIO esté disponible: {e}")
 
     first_user = db.query(models.User).first()
     if not first_user:
         raise HTTPException(status_code=500, detail="No hay usuarios en la base de datos para asociar el análisis.")
 
+    file_url = f"{settings.MINIO_ENDPOINT}/{S3_BUCKET_NAME}/{object_key}"
+    initial_analysis = schemas.AnalysisCreate(
+        analysis_type="genbank_stats",
+        results={},  # Resultados vacíos inicialmente
+        strain_id=strain_id,
+        file_url=file_url
+    )
+    created_analysis = crud.create_analysis(
+        db=db, analysis=initial_analysis, owner_id=first_user.id
+    )
+
     task = process_genbank_stats.delay(
+        analysis_id=created_analysis.id, # Pasa el ID del análisis creado
         strain_id=strain_id,
         owner_id=first_user.id,
         bucket=S3_BUCKET_NAME,
         object_key=object_key,
         analysis_type_str="genbank_stats"
     )
-    return {"message": "Análisis de estadísticas GenBank iniciado", "task_id": task.id}
+    return {"message": "Análisis de estadísticas GenBank iniciado", "task_id": task.id, "analysis_id": created_analysis.id}
 
 @router.post("/upload/gff_stats", status_code=status.HTTP_202_ACCEPTED)
 async def upload_and_analyze_gff(
@@ -278,20 +349,34 @@ async def upload_and_analyze_gff(
     try:
         s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, object_key)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO: {e}")
+        # Registrar el error para diagnóstico
+        print(f"[ERROR] Error al subir archivo a MinIO: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al subir el archivo a MinIO. Asegúrese de que el servicio MinIO esté disponible: {e}")
 
     first_user = db.query(models.User).first()
     if not first_user:
         raise HTTPException(status_code=500, detail="No hay usuarios en la base de datos para asociar el análisis.")
 
+    file_url = f"{settings.MINIO_ENDPOINT}/{S3_BUCKET_NAME}/{object_key}"
+    initial_analysis = schemas.AnalysisCreate(
+        analysis_type="gff_stats",
+        results={},  # Resultados vacíos inicialmente
+        strain_id=strain_id,
+        file_url=file_url
+    )
+    created_analysis = crud.create_analysis(
+        db=db, analysis=initial_analysis, owner_id=first_user.id
+    )
+
     task = process_gff_stats.delay(
+        analysis_id=created_analysis.id, # Pasa el ID del análisis creado
         strain_id=strain_id,
         owner_id=first_user.id,
         bucket=S3_BUCKET_NAME,
         object_key=object_key,
         analysis_type_str="gff_stats"
     )
-    return {"message": "Análisis de estadísticas GFF iniciado", "task_id": task.id}
+    return {"message": "Análisis de estadísticas GFF iniciado", "task_id": task.id, "analysis_id": created_analysis.id}
 
 
 def _format_results_to_text(analysis: models.Analysis) -> str:
@@ -360,11 +445,11 @@ def get_recent_analyses_for_user(
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado.")
 
-    # Obtener los análisis recientes para este usuario
-    analyses = crud.get_analyses(db, skip=0, limit=limit)
-
-    # Filtrar para que solo devuelva análisis del usuario especificado
-    user_analyses = [analysis for analysis in analyses if analysis.owner_id == user_id]
+    # Obtener todos los análisis ordenados por fecha (más recientes primero)
+    # Filtrar directamente en la base de datos para mejor rendimiento
+    user_analyses = db.query(models.Analysis).filter(
+        models.Analysis.owner_id == user_id
+    ).order_by(models.Analysis.timestamp.desc()).limit(limit).all()
 
     return user_analyses
 

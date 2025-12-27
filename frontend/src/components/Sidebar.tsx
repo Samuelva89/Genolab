@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaHome, FaDna, FaMicroscope, FaPlus, FaChartBar, FaTimes } from 'react-icons/fa';
+import { FaHome, FaDna, FaMicroscope, FaPlus, FaChartBar, FaTimes, FaFileUpload } from 'react-icons/fa';
 import './Sidebar.css';
 
 interface SidebarProps {
@@ -52,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               onClick={handleNavLinkClick}
               className={({ isActive }) => isActive ? 'active' : ''}
             >
-              <FaMicroscope className="sidebar-icon" /> Organismos
+              <FaMicroscope className="sidebar-icon" /> Microorganismos
             </NavLink>
           </li>
           <li>
@@ -70,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               onClick={handleNavLinkClick}
               className={({ isActive }) => isActive ? 'active' : ''}
             >
-              <FaPlus className="sidebar-icon" /> Crear Organismo
+              <FaPlus className="sidebar-icon" /> Crear Microorganismo
             </NavLink>
           </li>
           <li>
@@ -80,6 +80,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               className={({ isActive }) => isActive ? 'active' : ''}
             >
               <FaChartBar className="sidebar-icon" /> Análisis
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/ceparium/minio-upload"
+              onClick={handleNavLinkClick}
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              <FaFileUpload className="sidebar-icon" /> Subir archivo
             </NavLink>
           </li>
         </ul>

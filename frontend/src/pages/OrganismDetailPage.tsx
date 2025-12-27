@@ -50,7 +50,7 @@ const OrganismDetailPage: React.FC = () => {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
           setError('Organismo no encontrado.');
         } else {
-          setError('Error al cargar los detalles del organismo y sus cepas.');
+          setError('Error al cargar los detalles del microorganismo y sus cepas.');
           console.error('Error fetching organism details or strains:', err);
         }
       } finally {
@@ -62,12 +62,15 @@ const OrganismDetailPage: React.FC = () => {
   }, [organismId]);
 
   const handleDelete = async (organismId: number) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este organismo? Esta acción es irreversible.')) {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este microorganismo? Esta acción es irreversible.')) {
       try {
         await axios.delete(`${API_BASE_URL}/api/ceparium/organisms/${organismId}`);
-        navigate('/ceparium/organisms'); // Redirect to organisms list after deletion
+        // Mostrar mensaje de éxito y redirigir después de un corto tiempo
+        setError(null); // Limpiar errores previos
+        // Redirigir a la lista de organismos
+        navigate('/ceparium/organisms');
       } catch (err) {
-        setError('Error al eliminar el organismo. Asegúrese de que no tiene cepas asociadas.');
+        setError('Error al eliminar el microorganismo. Asegúrese de que no tiene cepas asociadas.');
         console.error('Error deleting organism:', err);
       }
     }
@@ -76,7 +79,7 @@ const OrganismDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="bioinformatics-theme">
-        <p>Cargando detalles del organismo...</p>
+        <p>Cargando detalles del microorganismo...</p>
       </div>
     );
   }
@@ -86,17 +89,17 @@ const OrganismDetailPage: React.FC = () => {
   }
 
   if (!organism) {
-    return <div className="bioinformatics-theme"><p>No se pudo cargar la información del organismo.</p></div>;
+    return <div className="bioinformatics-theme"><p>No se pudo cargar la información del microorganismo.</p></div>;
   }
 
   return (
     <div className="bioinformatics-theme fade-in-up">
       <div className="bioinformatics-card">
         <Link to="/ceparium/organisms">
-          <BioIcon type="file" className="sidebar-icon" /> Volver a lista de organismos
+          <BioIcon type="file" className="sidebar-icon" /> Volver a lista de microorganismos
         </Link>
         <h1>
-          <BioIcon type="dna" className="sidebar-icon" is3d /> Detalles del Organismo: {organism.name}
+          <BioIcon type="dna" className="sidebar-icon" is3d /> Detalles del Microorganismo: {organism.name}
         </h1>
         <div className="organism-info">
           <p><strong>Nombre:</strong> {organism.name}</p>
@@ -108,17 +111,16 @@ const OrganismDetailPage: React.FC = () => {
         <div className="form-actions">
           <Link to={`/ceparium/organisms/${organismId}/edit`}>
             <button className="button-primary">
-              <BioIcon type="flask" className="sidebar-icon" is3d /> Editar Organismo
+              <BioIcon type="flask" className="sidebar-icon" is3d /> Editar Microorganismo
             </button>
           </Link>
-          <button className="button-danger" onClick={() => handleDelete(organismId)}>
-            <BioIcon type="file" className="sidebar-icon" is3d /> Eliminar Organismo
-          </button>
-        </div>
+                      <button className="button-danger" onClick={() => handleDelete(organismId)}>
+                        <BioIcon type="file" className="sidebar-icon" is3d /> Eliminar Microorganismo
+                      </button>        </div>
 
         <h2><BioIcon type="vial" className="sidebar-icon" is3d /> Cepas Asociadas</h2>
         {strains.length === 0 ? (
-          <p>No hay cepas asociadas a este organismo.</p>
+          <p>No hay cepas asociadas a este microorganismo.</p>
         ) : (
           <ul className="data-list">
             {strains.map((strain) => (

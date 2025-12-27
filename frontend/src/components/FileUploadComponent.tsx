@@ -3,7 +3,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../services/api';
 
 interface FileUploadComponentProps {
-  strainId: number;
+  strainId?: number; // Optional, but will be required for analysis uploads
   onUploadSuccess?: () => void;
   allowedExtensions?: string[];
 }
@@ -11,7 +11,7 @@ interface FileUploadComponentProps {
 const FileUploadComponent: React.FC<FileUploadComponentProps> = ({
   strainId,
   onUploadSuccess,
-  allowedExtensions = ['.fasta', '.fastq', '.gbk', '.gff', '.txt', '.fa', '.fas', '.mfasta', '.fna', '.faa']
+  allowedExtensions = ['.fasta', '.fa', '.fna', '.ffn', '.faa', '.frn', '.fastq', '.fq', '.gb', '.gbk', '.genbank', '.gff', '.gff3', '.txt', '.fas', '.mfasta']
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
@@ -42,6 +42,13 @@ const FileUploadComponent: React.FC<FileUploadComponentProps> = ({
       return;
     }
 
+    // For analysis uploads, strain_id is required
+    if (!strainId) {
+      setUploadMessage('Por favor seleccione una cepa antes de subir el archivo para análisis');
+      setUploadStatus('error');
+      return;
+    }
+
     setUploadStatus('uploading');
     setUploadMessage('Subiendo archivo...');
 
@@ -58,7 +65,7 @@ const FileUploadComponent: React.FC<FileUploadComponentProps> = ({
       });
 
       setUploadStatus('success');
-      setUploadMessage(`Archivo subido exitosamente a MinIO. ID de análisis: ${response.data.analysis_id || 'N/A'}`);
+      setUploadMessage(`Archivo subido exitosamente. ID de análisis: ${response.data.analysis_id || 'N/A'}`);
 
       if (onUploadSuccess) {
         onUploadSuccess();
@@ -78,10 +85,12 @@ const FileUploadComponent: React.FC<FileUploadComponentProps> = ({
   return (
     <div className="bioinformatics-card file-upload-component">
       <h3>Subir archivo individual</h3>
-      <p>Sube archivos FASTA, FASTQ, GenBank, GFF u otros formatos biológicos directamente a MinIO</p>
+      <p>Sube y guarda los Archivos FASTA, FASTQ, GenBank, GFF u otros formatos biológicos. </p>
 
       <div className="file-upload-area bioinformatics-form">
+        <label htmlFor="file-upload-input" className="sr-only">Seleccionar archivo para subir</label>
         <input
+          id="file-upload-input"
           type="file"
           onChange={handleFileChange}
           accept={allowedExtensions.join(',')}
@@ -98,7 +107,7 @@ const FileUploadComponent: React.FC<FileUploadComponentProps> = ({
 
         <button
           onClick={handleUpload}
-          disabled={!selectedFile || uploadStatus === 'uploading'}
+          disabled={!selectedFile || !strainId || uploadStatus === 'uploading'}
           className={`upload-btn ${uploadStatus} bioinformatics-button`}
         >
           {uploadStatus === 'uploading' ? 'Subiendo...' : 'Subir archivo a MinIO'}

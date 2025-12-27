@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import FileUploadComponent from '../components/FileUploadComponent';
-import AnalysisResultDisplay from '../components/AnalysisResultDisplay';
-import { API_BASE_URL } from '../services/api';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import FileUploadComponent from "../components/FileUploadComponent";
+import AnalysisResultDisplay from "../components/AnalysisResultDisplay";
+import { API_BASE_URL } from "../services/api";
+import axios from "axios";
 
 interface Analysis {
   id: number;
@@ -30,12 +30,14 @@ const IndividualFileUploadPage: React.FC = () => {
   const fetchAnalyses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get<Analysis[]>(`${API_BASE_URL}/api/analysis/strain/${Number(strainId)}`);
+      const response = await axios.get<Analysis[]>(
+        `${API_BASE_URL}/api/analysis/strain/${Number(strainId)}`
+      );
       setAnalyses(response.data);
       setError(null);
     } catch (err) {
-      console.error('Error fetching analyses:', err);
-      setError('No se pudieron cargar los análisis guardados.');
+      console.error("Error fetching analyses:", err);
+      setError("No se pudieron cargar los análisis guardados.");
     } finally {
       setLoading(false);
     }
@@ -61,7 +63,10 @@ const IndividualFileUploadPage: React.FC = () => {
     <div className="bioinformatics-theme">
       <div className="bioinformatics-card">
         <h1>Subida de Archivos Individuales</h1>
-        <p>Sube archivos FASTA, FASTQ, GenBank, GFF u otros formatos biológicos directamente a MinIO sin análisis adicional.</p>
+        <p>
+          Sube archivos FASTA, FASTQ, GenBank, GFF u otros formatos biológicos
+          directamente sin análisis adicional.
+        </p>
 
         <div className="file-upload-section">
           <FileUploadComponent
@@ -80,19 +85,23 @@ const IndividualFileUploadPage: React.FC = () => {
             <div>
               {analyses.length > 0 ? (
                 <ul className="analysis-list">
-                  {analyses
-                    .map(analysis => (
-                      <li key={analysis.id} className="analysis-item">
-                        <div className="analysis-info">
-                          <h4>Archivo #{analysis.id}</h4>
-                          <p>Tipo: {analysis.analysis_type}</p>
-                          <p>Fecha: {new Date(analysis.timestamp).toLocaleString()}</p>
-                          <div className="results-preview">
-                            <AnalysisResultDisplay results={analysis.results} analysis_type={analysis.analysis_type} />
-                          </div>
+                  {analyses.map((analysis) => (
+                    <li key={analysis.id} className="analysis-item">
+                      <div className="analysis-info">
+                        <h4>Archivo #{analysis.id}</h4>
+                        <p>Tipo: {analysis.analysis_type}</p>
+                        <p>
+                          Fecha: {new Date(analysis.timestamp).toLocaleString()}
+                        </p>
+                        <div className="results-preview">
+                          <AnalysisResultDisplay
+                            results={analysis.results}
+                            analysis_type={analysis.analysis_type}
+                          />
                         </div>
-                      </li>
-                    ))}
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               ) : (
                 <p>No hay archivos guardados para esta cepa.</p>

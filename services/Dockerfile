@@ -1,54 +1,35 @@
-# Stage 1: Base image
-FROM python:3.10-slim-bullseye as base
+# Stage 1: Base image with Python
+FROM python:3.11-slim as base
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Create a non-root user
-RUN groupadd -r app && useradd -r -g app appuser
-
+# Set work directory
 WORKDIR /app
 
+# Install dependencies including curl
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Stage 2: Builder for python dependencies
-FROM base as builder
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Install system dependencies required for building some python packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libpq-dev && \
-    rm -rf /var/lib/apt/lists/*
+# Stage 2: Final image
+FROM base
 
-COPY requirements.txt requirements-dev.txt ./
+# Copy application code
+COPY . .
 
-# Install production dependencies
-RUN pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
+# Make startup script executable
+RUN chmod +x /app/startup.sh
 
-# (Optional) If you need dev dependencies for a test stage, you could install them here
-# RUN pip install --no-cache-dir -r requirements-dev.txt
+# Expose port
+EXPOSE 8000
 
+# Command to run the application
+ENTRYPOINT ["/app/startup.sh"]
 
-# Stage 3: Production image
-FROM base as production
-
-# Copy wheels from builder stage and install them
-COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir --no-index --find-links=/wheels /wheels/* && rm -rf /wheels
-
-
-
-# Create data and services directories and set permissions for sqlite
-RUN mkdir -p /app/data && \
-    mkdir -p /app/services && \
-    chown -R appuser:app /app
-
-# Change ownership of the app directory
-RUN chown -R appuser:app /app
-
-# Switch to the non-root user
-USER appuser
-
-# Copy the start script and make it executable
-COPY --chown=appuser:app start_app.sh /app/start_app.sh
-
-# Set the command to run the application
-CMD ["sh", "/app/start_app.sh"]
